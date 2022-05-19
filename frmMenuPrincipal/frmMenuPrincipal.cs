@@ -22,7 +22,6 @@ namespace frmMenuPrincipal
       
      */
 
-
     public partial class frmPrincipal : Form
     {
 
