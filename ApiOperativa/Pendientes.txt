@@ -1,7 +1,9 @@
 Requerimientos por Implementar [Módulo Aplicaciones]:
 
 Añadir el aviso de que el programa esté listo [Genera Mensaje]
-Añadir mensaje de confirmación de cerrado [Formulario Calculadora]. Genera mensaje cuando se acepte el cerrado de aplicaciones.
+Añadir mensaje de confirmación de cerrado [Formulario Calculadora].
+Genera mensaje cuando se acepte el cerrado de aplicaciones.
+Hacer Método de eliminación de PID [Primero por cada PID y luego el método general]
 
 
 Añadir intérprete de comandos
