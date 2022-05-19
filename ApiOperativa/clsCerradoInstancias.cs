@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace KernelSistema
 {
@@ -36,6 +37,17 @@ namespace KernelSistema
         #endregion
 
         #region [Métodos Públicos]
+
+        public bool ConfirmaCerrado()
+        {
+            DialogResult resultado = MessageBox.Show("Desea salir del programa?\nEsto implica cerrar todas las demás instancias de programas abiertos mediante esta aplicación.", "Confirmacion",
+   MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (resultado == DialogResult.Yes)
+            {
+                return true;
+            }
+            else return false;
+        }
 
         public void CerrarInstancia(String param = "default")
         {

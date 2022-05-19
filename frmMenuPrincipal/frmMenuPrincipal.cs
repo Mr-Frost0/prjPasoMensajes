@@ -150,6 +150,14 @@ namespace frmMenuPrincipal
             }
         }
 
+        private void CerradoForm()
+        {
+            if (objCerrarInstancia.ConfirmaCerrado())
+            {
+                objCerrarInstancia.CerrarInstancia("form-calculadora");
+            }
+        }
+
         #endregion
 
         #region [Eventos]
@@ -176,7 +184,7 @@ namespace frmMenuPrincipal
 
         private void frmPrincipal_FormClosing(object sender, FormClosingEventArgs e)
         {
-            objCerrarInstancia.CerrarInstancia("modulo-principal");
+            CerradoForm();
         }
 
         private void btnActuMsgs_Click(object sender, EventArgs e)
