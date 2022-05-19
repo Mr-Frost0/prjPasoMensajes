@@ -37,6 +37,7 @@ namespace KernelSistema
         #region [Métodos Públicos]
 
 
+
         
         #endregion
 

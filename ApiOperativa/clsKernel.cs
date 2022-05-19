@@ -20,8 +20,6 @@ namespace KernelSistema
 
         #region [Atributos]
 
-        private const String RUTAINICIO = "C:\\Users\\MrFro\\Desktop\\Final Sistemas Operativos\\libOpeSO\\frmCalculadora\\bin\\Debug\\frmCalculadora.exe";
-
         private String strError;
         private int intIdProcMaestro;
         List<int> lstProcesosHijo;
@@ -72,7 +70,7 @@ namespace KernelSistema
 
         public String LanzaForm(String operacion = "default")
         {
-            Process arrancaForm = Process.Start(@RUTAINICIO, operacion.ToLower());
+            Process arrancaForm = Process.Start(clsConstantes.RUTAINICIO, operacion.ToLower());
             this.lstProcesosHijo.Add(arrancaForm.Id);
             return arrancaForm.Id.ToString();
         }        
