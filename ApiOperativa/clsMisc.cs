@@ -2,10 +2,10 @@
 
 namespace KernelSistema
 {
-    public class clsConstantes
+    static class clsConstantes
     {
         public const String strRutaCnlPrivMsg = "desktop-21sfvlh\\Private$\\operacionesTest";
-        public String RUTAINICIO = AppDomain.CurrentDomain.BaseDirectory.Replace("frmPrincupal", "frmCalculadora") + "frmCalculadora.exe";
+        public static String RUTAINICIO = AppDomain.CurrentDomain.BaseDirectory.Replace("frmMenuPrincipal", "frmCalculadora") + "frmCalculadora.exe";
         //"C:\\Users\\MrFro\\Desktop\\Final Sistemas Operativos\\libOpeSO\\frmCalculadora\\bin\\Debug\\frmCalculadora.exe"
     }
 

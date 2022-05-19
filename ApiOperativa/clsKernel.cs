@@ -70,7 +70,7 @@ namespace KernelSistema
 
         public String LanzaForm(String operacion = "default")
         {
-            Process arrancaForm = Process.Start(clsConstantes.RUTAINICIO, operacion.ToLower());
+            Process arrancaForm = Process.Start(clsConstantes.@RUTAINICIO, operacion.ToLower());
             this.lstProcesosHijo.Add(arrancaForm.Id);
             return arrancaForm.Id.ToString();
         }

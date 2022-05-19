@@ -201,7 +201,10 @@ namespace frmCalculadora
 
         private void CerradoForm()
         {
-            objCerrarForm.CerrarInstancia("form-calculadora");
+            if (objCerrarForm.ConfirmaCerrado())
+            {
+                objCerrarForm.CerrarInstancia("form-calculadora");
+            }            
         }
 
         #endregion
