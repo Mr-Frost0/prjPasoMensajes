@@ -140,6 +140,7 @@ namespace frmCalculadora
             this.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             this.Name = "frmCalculadora";
             this.Text = "Calculadora de {operation}";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmCalculadora_FormClosing);
             this.Load += new System.EventHandler(this.frmCalculadora_Load);
             this.grbMakeOpp.ResumeLayout(false);
             this.grbMakeOpp.PerformLayout();

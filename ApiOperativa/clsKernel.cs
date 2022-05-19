@@ -73,7 +73,7 @@ namespace KernelSistema
             Process arrancaForm = Process.Start(clsConstantes.RUTAINICIO, operacion.ToLower());
             this.lstProcesosHijo.Add(arrancaForm.Id);
             return arrancaForm.Id.ToString();
-        }        
+        }
 
         #endregion
 

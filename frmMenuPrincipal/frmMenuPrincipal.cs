@@ -27,7 +27,8 @@ namespace frmMenuPrincipal
 
         #region [Atributos]
 
-        private clsKernel apiOperativa;
+        private clsKernel objKernel;
+        private clsCerrarPorPID objCerrarInstancia;
         private clsRecibeMensajes objRecibeMsg;
         private bool estaArrancado = false;
 
@@ -38,9 +39,9 @@ namespace frmMenuPrincipal
         public frmPrincipal()
         {
             InitializeComponent();
-            apiOperativa = new clsKernel();
+            objKernel = new clsKernel();
             RecuperaIdMaestro();
-            this.lstPIDs.Items.Add(apiOperativa.IdProcMaestro.ToString());
+            this.lstPIDs.Items.Add(objKernel.IdProcMaestro.ToString());
             bgwRecibeMensajes.WorkerReportsProgress = true;
             bgwRecibeMensajes.WorkerSupportsCancellation = true;
             ArrancarBGW();
@@ -53,9 +54,9 @@ namespace frmMenuPrincipal
 
         private void RecuperaIdMaestro()
         {
-            if (!apiOperativa.RecovPID("maestro"))
+            if (!objKernel.RecovPID("maestro"))
             {
-                MessageBox.Show(apiOperativa.Error,"Final Sistemas Operativos",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                MessageBox.Show(objKernel.Error,"Final Sistemas Operativos",MessageBoxButtons.OK,MessageBoxIcon.Error);
             }
         }
 
@@ -155,30 +156,27 @@ namespace frmMenuPrincipal
 
         private void btnSuma_Click(object sender, EventArgs e)
         {
-            this.lstPIDs.Items.Add(apiOperativa.LanzaForm("sumar").ToString());
+            this.lstPIDs.Items.Add(objKernel.LanzaForm("sumar").ToString());
         }
 
         private void btnResta_Click(object sender, EventArgs e)
         {
-            this.lstPIDs.Items.Add(apiOperativa.LanzaForm("restar"));
+            this.lstPIDs.Items.Add(objKernel.LanzaForm("restar"));
         }
 
         private void btnMultipl_Click(object sender, EventArgs e)
         {
-            this.lstPIDs.Items.Add(apiOperativa.LanzaForm("multiplicar"));
+            this.lstPIDs.Items.Add(objKernel.LanzaForm("multiplicar"));
         }
 
         private void btnDivision_Click(object sender, EventArgs e)
         {
-            this.lstPIDs.Items.Add(apiOperativa.LanzaForm("dividir"));
+            this.lstPIDs.Items.Add(objKernel.LanzaForm("dividir"));
         }
 
         private void frmPrincipal_FormClosing(object sender, FormClosingEventArgs e)
         {
-            DialogResult resultado = MessageBox.Show("Desea salir del programa?\nEsto implica cerrar todas las demás instancias de programas abiertos mediante esta aplicación.", "Confirmacion",
-               MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            e.Cancel = (resultado == DialogResult.No);
-            apiOperativa = null;
+            objCerrarInstancia.CerrarInstancia("modulo-principal");
         }
 
         private void btnActuMsgs_Click(object sender, EventArgs e)
@@ -196,11 +194,6 @@ namespace frmMenuPrincipal
         private void bgwRecibeMensajes_DoWork(object sender, DoWorkEventArgs e)
         {
             RecuperarMsg(sender, e);
-        }
-
-        private void bgwRecibeMensajes_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-
         }
 
         #endregion

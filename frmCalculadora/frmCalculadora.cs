@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
-using libOpeSO;
 using KernelSistema;
+using OperacionesMatematicas;
 
 namespace frmCalculadora
 {
@@ -12,6 +12,7 @@ namespace frmCalculadora
 
         clsHacerOperaciones objHacerOpe;
         clsPasoMensajes objPasoMensajes;
+        clsCerrarPorPID objCerrarForm;
         private String strTipoOpe;
         private String strReplace;
         private Double valor1, valor2;
@@ -26,8 +27,9 @@ namespace frmCalculadora
         {
             InitializeComponent();
             this.strTipoOpe = args[1];
-            objHacerOpe = new clsHacerOperaciones();
-            objPasoMensajes = new clsPasoMensajes();
+            this.objHacerOpe = new clsHacerOperaciones();
+            this.objPasoMensajes = new clsPasoMensajes();
+            this.objCerrarForm = new clsCerrarPorPID();
 
         }
 
@@ -197,6 +199,11 @@ namespace frmCalculadora
             }
         }
 
+        private void CerradoForm()
+        {
+            objCerrarForm.CerrarInstancia("form-calculadora");
+        }
+
         #endregion
 
         #region [Eventos]
@@ -209,6 +216,11 @@ namespace frmCalculadora
         private void btnOperacion_Click(object sender, EventArgs e)
         {
             Calcular();
+        }
+
+        private void frmCalculadora_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            CerradoForm();
         }
 
         private void frmCalculadora_Load(object sender, EventArgs e)

@@ -11,6 +11,7 @@ namespace KernelSistema
 
         private int intPID;
         
+        
         #endregion
 
         #region [Constructor]
@@ -36,7 +37,25 @@ namespace KernelSistema
 
         #region [Métodos Públicos]
 
-
+        public void CerrarInstancia(String param = "default")
+        {
+            try
+            {
+                switch (param.ToLower())
+                {
+                    case "modulo-principal":
+                        break;
+                    case "form-calculadora":
+                        break;
+                    default:
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         
         #endregion

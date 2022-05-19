@@ -88,6 +88,10 @@
       <Project>{817e97d6-d9c3-420e-8d7f-78989bc4ceaa}</Project>
       <Name>libKernelSistema</Name>
     </ProjectReference>
+    <ProjectReference Include="..\libOpeSO\libOpeMatematicas.csproj">
+      <Project>{ba5c4862-b752-40e4-8778-0a97229a2057}</Project>
+      <Name>libOpeMatematicas</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

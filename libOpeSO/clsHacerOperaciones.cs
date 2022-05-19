@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace libOpeSO
+namespace OperacionesMatematicas
 {
     public class clsHacerOperaciones
     {

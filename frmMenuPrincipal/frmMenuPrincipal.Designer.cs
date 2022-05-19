@@ -139,7 +139,6 @@ namespace frmMenuPrincipal
             // bgwRecibeMensajes
             // 
             this.bgwRecibeMensajes.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgwRecibeMensajes_DoWork);
-            this.bgwRecibeMensajes.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgwRecibeMensajes_RunWorkerCompleted);
             // 
             // tmrEspera
             // 
