@@ -39,6 +39,7 @@ namespace frmCalculadora
 
         private bool HayErrorArranque()
         {
+
             if (this.debeReiniciar)
             {
                 return false;

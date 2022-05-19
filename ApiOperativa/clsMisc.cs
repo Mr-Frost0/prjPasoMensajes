@@ -4,7 +4,8 @@ namespace KernelSistema
 {
     public class clsConstantes
     {
-        public const String strRutaCnlPrivMsg = "desktop-21sfvlh\\Private$\\operacionesTest";
+        private string NameDesktop = System.Windows.Forms.SystemInformation.ComputerName;
+        public const String strRutaCnlPrivMsg = NameDesktop + "\\Private$\\operacionesTest";
         public String RUTAINICIO = AppDomain.CurrentDomain.BaseDirectory.Replace("frmPrincupal", "frmCalculadora") + "frmCalculadora.exe";
         //"C:\\Users\\MrFro\\Desktop\\Final Sistemas Operativos\\libOpeSO\\frmCalculadora\\bin\\Debug\\frmCalculadora.exe"
     }
