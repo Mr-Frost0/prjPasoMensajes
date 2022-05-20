@@ -107,7 +107,7 @@ namespace frmCalculadora
 
                 ImpResult();
 
-                if (!EnviarMensaje())
+                if (!EnviarMensaje("op-exito"))
                 {
                     MessageBox.Show("Ha ocurrido un error enviando el mensaje de confirmación", "Calculadora - " + strReplace, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
@@ -179,16 +179,26 @@ namespace frmCalculadora
             this.lblResultado.Text = Convert.ToString(objHacerOpe.Resultado);
         }
 
-        private bool EnviarMensaje()
+        private bool EnviarMensaje(String tipoMsg)
         {
             try
             {
+                switch (tipoMsg)
+                {
+                    case "op-exito":
+                        objPasoMensajes.TipoMensaje = "operacion-exito";
+                        objPasoMensajes.TipoCalc = strReplace;
+                        objPasoMensajes.CodTerm = 0;
+                        objPasoMensajes.Origen = this.Text;
+                        break;
+                    default:
+                        break;
+                }
 
-                objPasoMensajes.TipoMensaje = "operacion-exito";
-                objPasoMensajes.TipoCalc = strReplace;
 
                 if (!objPasoMensajes.EnviarMsg())
                 {
+                    MessageBox.Show(objPasoMensajes.Error, "Calculadora - " + strReplace, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
 

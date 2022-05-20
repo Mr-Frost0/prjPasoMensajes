@@ -11,8 +11,10 @@ namespace KernelSistema
         private String strTipoMensaje;
         private String strTipoCalc;
         private String strError;
+        private String strOrigen;
         private int intIdProceso;
-        clsKernel objApiOperativa;
+        private int intCodTerm;
+        clsKernel objKernelArranque;
         private Message mensaje;
         private MessageQueue objEnviaMensaje;
         private MsgRecibe msgRecibe;
@@ -25,12 +27,11 @@ namespace KernelSistema
         {
             this.strTipoMensaje = "";
             this.strError = "";
-            this.TipoCalc = "";
+            this.strTipoCalc = "";
+            this.strOrigen = "";
+            this.intCodTerm = 0;
+            this.intIdProceso = 0;
             this.mensaje = new Message();
-            this.objEnviaMensaje = new MessageQueue(clsConstantes.strRutaCnlPrivMsg);
-            this.objApiOperativa = new clsKernel();
-            this.objApiOperativa.RecovPID("pasomensaje");
-            this.intIdProceso = objApiOperativa.IdProcMaestro;
             this.msgRecibe = new MsgRecibe();
         }
 
@@ -40,13 +41,10 @@ namespace KernelSistema
 
         public String TipoMensaje { set => strTipoMensaje = value; }
         public String TipoCalc { set => strTipoCalc = value; }
+        public String Origen { set => strOrigen = value; }
+        public int IdProceso { set => intIdProceso = value; }
+        public int CodTerm { set => intCodTerm = value; }
         public String Error { get => strError; }
-
-        #endregion
-
-        #region [Métodos Privados]
-
-
 
         #endregion
 
@@ -56,12 +54,24 @@ namespace KernelSistema
         {
             try
             {
+                this.objKernelArranque = new clsKernel();
                 switch (strTipoMensaje.ToLower())
                 {
-                    //Enviar mensaje con operación exitosa, independientemente del tipo de operación
-
                     case "operacion-exito":
-                        msgRecibe.strMensaje = "La calculadora de " + strTipoCalc + ", con el PID número [" + intIdProceso + "] ha hecho una operación con éxito";
+                        this.objEnviaMensaje = new MessageQueue(clsConstantes.strRutaCanalMensajes);
+                        this.objKernelArranque.RecuperaPID("pasomensaje");
+                        msgRecibe.intCodTerm = this.intCodTerm;
+                        msgRecibe.strOrigen = this.strOrigen;
+                        msgRecibe.strComando = strTipoMensaje;
+                        msgRecibe.strMensaje = "Operación Exitosa";
+                        msgRecibe.intPID = objKernelArranque.IdProceso;
+                        mensaje.Body = msgRecibe;
+                        objEnviaMensaje.Send(mensaje);
+                        break;
+                    case "enviar-pid":
+                        this.objEnviaMensaje = new MessageQueue(clsConstantes.strRutaCanalPID);
+                        msgRecibe.intPID = this.objKernelArranque.IdProceso;
+                        msgRecibe.strOrigen = this.strOrigen;
                         mensaje.Body = msgRecibe;
                         objEnviaMensaje.Send(mensaje);
                         break;

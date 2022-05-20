@@ -26,7 +26,7 @@ namespace KernelSistema
         {
             this.strMensaje = "";
             this.strError = "";
-            this.msgCola = new MessageQueue(clsConstantes.strRutaCnlPrivMsg);
+            this.msgCola = new MessageQueue(clsConstantes.strRutaCanalMensajes);
             this.msgRecibe = new MsgRecibe();
             this.o = new Object();
             this.arrTipos = new Type[2];
@@ -53,14 +53,19 @@ namespace KernelSistema
 
         #region [Métodos Públicos]
 
-        public bool RecibirMsg()
+        public bool RecibirMsg(String tipoRecibida)
         {
             try
             {
                 msgRecibe = ((MsgRecibe)msgCola.Receive().Body);
-
-                strMensaje = sb.Append("Mensaje Recibido: " + msgRecibe.strMensaje).ToString();
-
+                switch (tipoRecibida.ToLower())
+                {
+                    case "operacion-exito":
+                        strMensaje = sb.Append("Mensaje de: " + msgRecibe.strOrigen + "; [" + msgRecibe.intPID + "]; cod:" + msgRecibe.intCodTerm + "; cmd:" + msgRecibe.strComando + "; msg: " + msgRecibe.strMensaje).ToString() + ";";
+                        break;
+                    default:
+                        break;
+                }
                 return true;
             }
             catch (Exception ex)

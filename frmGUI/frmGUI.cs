@@ -1,33 +1,17 @@
 ﻿using System;
 using System.Windows.Forms;
 using KernelSistema;
-using System.ComponentModel;
 using System.Threading;
+using System.ComponentModel;
 
-namespace frmMenuPrincipal
+namespace frmGUI
 {
-
-    /*
-     * Este es el módulo de aplicaciones, por lo cual le aplican las siguientes normas
-      
-     * Si este módulo se cierra, deberá cerrar todos los módulos hijos, pero se debe poder inicializar de nuevo desde el módulo GUI     
-     
-     * Controlará sus instancias a través del paso de mensajes
-     
-     * Se comunicará con la GUI mediante el comando 'info', a la vez que envía el PID de las instancias hijas
-      
-     * Cuando se cierre una instancia o todas mediante el módulo Aplicación, notificará al gestor de archivos y lo registrará en el registro de transacciones
-      
-     * Este módulo puede generar un mensaje 'ocupado' con un tiempo de espera entre 1 y 3 segundos, para luego pasar a estar disponibles y actualizar su estado en tiempo real
-      
-     */
-
-    public partial class frmPrincipal : Form
+    public partial class frmGUI : Form
     {
 
         #region [Atributos]
 
-        private clsKernel objKernel;
+        clsKernel objKernel;
         private clsCerrarPorPID objCerrarInstancia;
         private clsRecibeMensajes objRecibeMsg;
         private bool estaArrancado = false;
@@ -36,17 +20,15 @@ namespace frmMenuPrincipal
 
         #region [Constructor]
 
-        public frmPrincipal()
+        public frmGUI()
         {
             InitializeComponent();
-            objKernel = new clsKernel();
+            this.objKernel = new clsKernel();
+            this.objCerrarInstancia = new clsCerrarPorPID();
             RecuperaIdMaestro();
-            this.lstPIDs.Items.Add(objKernel.IdProcMaestro.ToString());
-            bgwRecibeMensajes.WorkerReportsProgress = true;
-            bgwRecibeMensajes.WorkerSupportsCancellation = true;
-            objCerrarInstancia = new clsCerrarPorPID();
+            this.bgwRecibeMensajes.WorkerReportsProgress = true;
+            this.bgwRecibeMensajes.WorkerSupportsCancellation = true;
             ArrancarBGW();
-
         }
 
         #endregion
@@ -55,47 +37,24 @@ namespace frmMenuPrincipal
 
         private void RecuperaIdMaestro()
         {
-            if (!objKernel.RecovPID("maestro"))
+            if (!objKernel.RecuperaPID("maestro"))
             {
-                MessageBox.Show(objKernel.Error,"Final Sistemas Operativos",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                MessageBox.Show(objKernel.Error, "Final Sistemas Operativos", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            this.lstHistorialPIDs.Items.Add("[" + objKernel.IdProceso.ToString() + "] " + this.Text);
+            this.lstPIDActuales.Items.Add("[" + objKernel.IdProceso.ToString() + "] " + this.Text);
         }
 
-        private void RecuperarMsg(object sender, DoWorkEventArgs e)
+        private void NuevaInstancia()
         {
-            BackgroundWorker worker = sender as BackgroundWorker;
+            objKernel.LanzaForm("mod-aplicaciones");
+        }
 
-            while (worker.CancellationPending == false)
+        private void CerradoForm()
+        {
+            if (objCerrarInstancia.ConfirmaCerrado())
             {
-                objRecibeMsg = new clsRecibeMensajes();
-                try
-                {
-                    if (worker.CancellationPending == true)
-                    {
-                        e.Cancel = true;
-                    }
-                    else
-                    {
-                        if (!objRecibeMsg.RecibirMsg())
-                        {
-                            MessageBox.Show(objRecibeMsg.Error, "Final Sistemas Operativos", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            return;
-                        }
-                        CheckForIllegalCrossThreadCalls = false;
-                        this.txtMensajes.Text += objRecibeMsg.Mensaje;
-                        this.txtMensajes.Text += Environment.NewLine;
-                    }
-                    Thread.Sleep(500);
-                
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error: " + ex.Message, "Final Sistemas Operativos", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-                finally
-                {
-                    objRecibeMsg = null;
-                }
+                objCerrarInstancia.CerrarInstancia("cerrar-gui");
             }
         }
 
@@ -115,9 +74,50 @@ namespace frmMenuPrincipal
             }
         }
 
+        private void RecuperarMsg(object sender, DoWorkEventArgs e)
+        {
+            BackgroundWorker worker = sender as BackgroundWorker;
+
+            while (worker.CancellationPending == false)
+            {
+                objRecibeMsg = new clsRecibeMensajes();
+                try
+                {
+                    if (worker.CancellationPending == true)
+                    {
+                        e.Cancel = true;
+                        estaArrancado = false;
+                    }
+                    else
+                    {
+                        estaArrancado = true;
+                        if (!objRecibeMsg.RecibirMsg("operacion-exito"))
+                        {
+                            MessageBox.Show(objRecibeMsg.Error, "Final Sistemas Operativos", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            return;
+                        }
+                        CheckForIllegalCrossThreadCalls = false;
+                        this.txtMensajes.Text += objRecibeMsg.Mensaje;
+                        this.txtMensajes.Text += Environment.NewLine;
+                        this.txtMensajes.SelectionStart = txtMensajes.Text.Length;
+                        this.txtMensajes.ScrollToCaret();
+                    }
+                    Thread.Sleep(500);
+
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error: " + ex.Message, "Final Sistemas Operativos", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    objRecibeMsg = null;
+                }
+            }
+        }
+
         private void ActuEstado(String estado)
         {
-
             switch (estado)
             {
                 case "arrancado":
@@ -128,7 +128,6 @@ namespace frmMenuPrincipal
                     }
                     else
                     {
-                        estaArrancado = true;
                         this.txtMensajes.Text += "Actualización de Mensajes Activada";
                         this.txtMensajes.Text += Environment.NewLine;
                     }
@@ -138,7 +137,6 @@ namespace frmMenuPrincipal
                     {
                         this.txtMensajes.Text += "Actiualización de Mensajes Desactivada, esperando último mensaje en camino (si existe)...";
                         this.txtMensajes.Text += Environment.NewLine;
-                        estaArrancado = false;
                     }
                     else
                     {
@@ -147,15 +145,7 @@ namespace frmMenuPrincipal
                     }
                     break;
                 default:
-                    break;                    
-            }
-        }
-
-        private void CerradoForm()
-        {
-            if (objCerrarInstancia.ConfirmaCerrado())
-            {
-                objCerrarInstancia.CerrarInstancia("form-calculadora");
+                    break;
             }
         }
 
@@ -163,29 +153,14 @@ namespace frmMenuPrincipal
 
         #region [Eventos]
 
-        private void btnSuma_Click(object sender, EventArgs e)
+        private void tsmiNuevaInstancia_Click(object sender, EventArgs e)
         {
-            this.lstPIDs.Items.Add(objKernel.LanzaForm("sumar").ToString());
+            NuevaInstancia();
         }
 
-        private void btnResta_Click(object sender, EventArgs e)
+        private void bgwRecibeMensajes_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
-            this.lstPIDs.Items.Add(objKernel.LanzaForm("restar"));
-        }
-
-        private void btnMultipl_Click(object sender, EventArgs e)
-        {
-            this.lstPIDs.Items.Add(objKernel.LanzaForm("multiplicar"));
-        }
-
-        private void btnDivision_Click(object sender, EventArgs e)
-        {
-            this.lstPIDs.Items.Add(objKernel.LanzaForm("dividir"));
-        }
-
-        private void frmPrincipal_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            CerradoForm();
+            RecuperarMsg(sender, e);
         }
 
         private void btnActuMsgs_Click(object sender, EventArgs e)
@@ -200,9 +175,14 @@ namespace frmMenuPrincipal
             DetenerBGW();
         }
 
-        private void bgwRecibeMensajes_DoWork(object sender, DoWorkEventArgs e)
+        private void frmGUI_FormClosing(object sender, FormClosingEventArgs e)
         {
-            RecuperarMsg(sender, e);
+            CerradoForm();
+        }
+
+        private void bgwRefrescaPID_DoWork(object sender, DoWorkEventArgs e)
+        {
+
         }
 
         #endregion
