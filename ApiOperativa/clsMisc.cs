@@ -10,7 +10,10 @@ namespace KernelSistema
 
     public struct MsgRecibe
     {
-        public String mensaje;
+        public int intComando;
+        public String strOrigen;
+        public String strMensaje;
+        public int intPID;
     }
 
 }

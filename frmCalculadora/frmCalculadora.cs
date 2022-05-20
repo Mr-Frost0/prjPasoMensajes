@@ -205,7 +205,7 @@ namespace frmCalculadora
         {
             if (objCerrarForm.ConfirmaCerrado())
             {
-                objCerrarForm.CerrarInstancia("form-calculadora");
+                objCerrarForm.CerrarInstancia("fin-frmCalculadora");
             }            
         }
 

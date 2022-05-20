@@ -1,6 +1,4 @@
 using System;
-using System.Diagnostics;
-using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace KernelSistema
@@ -11,6 +9,7 @@ namespace KernelSistema
         #region [Atributos]
 
         private int intPID;
+        private clsPasoMensajes enviarTerminacion;
         
         
         #endregion
@@ -20,6 +19,7 @@ namespace KernelSistema
         public clsCerrarPorPID()
         {
             this.intPID = 0;
+            this.enviarTerminacion = new clsPasoMensajes();
         }
         
         #endregion
@@ -41,7 +41,7 @@ namespace KernelSistema
         public bool ConfirmaCerrado()
         {
             DialogResult resultado = MessageBox.Show("Desea salir del programa?\nEsto implica cerrar todas las demás instancias de programas abiertos mediante esta aplicación.", "Confirmacion",
-   MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (resultado == DialogResult.Yes)
             {
                 return true;
@@ -53,15 +53,8 @@ namespace KernelSistema
         {
             try
             {
-                switch (param.ToLower())
-                {
-                    case "modulo-principal":
-                        break;
-                    case "form-calculadora":
-                        break;
-                    default:
-                        break;
-                }
+                enviarTerminacion.TipoMensaje = param;
+                enviarTerminacion.EnviarMsg();
             }
             catch (Exception ex)
             {

@@ -61,9 +61,12 @@ namespace KernelSistema
                     //Enviar mensaje con operación exitosa, independientemente del tipo de operación
 
                     case "operacion-exito":
-                        msgRecibe.mensaje = "La calculadora de " + strTipoCalc + ", con el PID número [" + intIdProceso + "] ha hecho una operación con éxito";
+                        msgRecibe.strMensaje = "La calculadora de " + strTipoCalc + ", con el PID número [" + intIdProceso + "] ha hecho una operación con éxito";
                         mensaje.Body = msgRecibe;
                         objEnviaMensaje.Send(mensaje);
+                        break;
+                    case "fin-frmCalculadora":
+                        msgRecibe.strMensaje = "";
                         break;
                     default:
                         break;

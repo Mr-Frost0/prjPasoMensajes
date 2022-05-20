@@ -59,7 +59,7 @@ namespace KernelSistema
             {
                 msgRecibe = ((MsgRecibe)msgCola.Receive().Body);
 
-                strMensaje = sb.Append("Mensaje Recibido: " + msgRecibe.mensaje).ToString();
+                strMensaje = sb.Append("Mensaje Recibido: " + msgRecibe.strMensaje).ToString();
 
                 return true;
             }
