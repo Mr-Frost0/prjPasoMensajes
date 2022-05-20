@@ -184,7 +184,8 @@ namespace frmCalculadora
             try
             {
 
-                objPasoMensajes.TipoMensaje = "suma-exito";
+                objPasoMensajes.TipoMensaje = "operacion-exito";
+                objPasoMensajes.TipoCalc = strReplace;
 
                 if (!objPasoMensajes.EnviarMsg())
                 {

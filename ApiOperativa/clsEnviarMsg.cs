@@ -9,6 +9,7 @@ namespace KernelSistema
         #region [Atributos]
 
         private String strTipoMensaje;
+        private String strTipoCalc;
         private String strError;
         private int intIdProceso;
         clsKernel objApiOperativa;
@@ -24,6 +25,7 @@ namespace KernelSistema
         {
             this.strTipoMensaje = "";
             this.strError = "";
+            this.TipoCalc = "";
             this.mensaje = new Message();
             this.objEnviaMensaje = new MessageQueue(clsConstantes.strRutaCnlPrivMsg);
             this.objApiOperativa = new clsKernel();
@@ -37,6 +39,7 @@ namespace KernelSistema
         #region [Propiedades]
 
         public String TipoMensaje { set => strTipoMensaje = value; }
+        public String TipoCalc { set => strTipoCalc = value; }
         public String Error { get => strError; }
 
         #endregion
@@ -57,8 +60,8 @@ namespace KernelSistema
                 {
                     //Enviar mensaje con operación exitosa, independientemente del tipo de operación
 
-                    case "suma-exito":
-                        msgRecibe.mensaje = "La calculadora de sumas, con el PID número [" + intIdProceso + "] ha hecho una operación de suma con éxito";
+                    case "operacion-exito":
+                        msgRecibe.mensaje = "La calculadora de " + strTipoCalc + ", con el PID número [" + intIdProceso + "] ha hecho una operación con éxito";
                         mensaje.Body = msgRecibe;
                         objEnviaMensaje.Send(mensaje);
                         break;

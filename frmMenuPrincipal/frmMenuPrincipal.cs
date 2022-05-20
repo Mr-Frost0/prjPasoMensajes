@@ -44,6 +44,7 @@ namespace frmMenuPrincipal
             this.lstPIDs.Items.Add(objKernel.IdProcMaestro.ToString());
             bgwRecibeMensajes.WorkerReportsProgress = true;
             bgwRecibeMensajes.WorkerSupportsCancellation = true;
+            objCerrarInstancia = new clsCerrarPorPID();
             ArrancarBGW();
 
         }
