@@ -35,12 +35,11 @@
             this.lstPIDActuales = new System.Windows.Forms.ListBox();
             this.btnDetenerActu = new System.Windows.Forms.Button();
             this.btnActuMsgs = new System.Windows.Forms.Button();
-            this.bgwRecibeMensajes = new System.ComponentModel.BackgroundWorker();
+            this.wrkMsgTextBox = new System.ComponentModel.BackgroundWorker();
             this.mnuOpciones = new System.Windows.Forms.MenuStrip();
             this.tsmiIniciar = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiNuevaInstancia = new System.Windows.Forms.ToolStripMenuItem();
-            this.bgwActualizaPID = new System.ComponentModel.BackgroundWorker();
-            this.bgwRefrescaPID = new System.ComponentModel.BackgroundWorker();
+            this.wrkMsgPID = new System.ComponentModel.BackgroundWorker();
             this.grbMensajes.SuspendLayout();
             this.grbPIDs.SuspendLayout();
             this.mnuOpciones.SuspendLayout();
@@ -122,9 +121,9 @@
             this.btnActuMsgs.UseVisualStyleBackColor = true;
             this.btnActuMsgs.Click += new System.EventHandler(this.btnActuMsgs_Click);
             // 
-            // bgwRecibeMensajes
+            // wrkMsgTextBox
             // 
-            this.bgwRecibeMensajes.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgwRecibeMensajes_DoWork);
+            this.wrkMsgTextBox.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgwRecibeMensajes_DoWork);
             // 
             // mnuOpciones
             // 
@@ -148,13 +147,13 @@
             // tsmiNuevaInstancia
             // 
             this.tsmiNuevaInstancia.Name = "tsmiNuevaInstancia";
-            this.tsmiNuevaInstancia.Size = new System.Drawing.Size(273, 22);
+            this.tsmiNuevaInstancia.Size = new System.Drawing.Size(400, 30);
             this.tsmiNuevaInstancia.Text = "&Nueva Instancia Módulo Aplicaciones";
             this.tsmiNuevaInstancia.Click += new System.EventHandler(this.tsmiNuevaInstancia_Click);
             // 
-            // bgwRefrescaPID
+            // wrkMsgPID
             // 
-            this.bgwRefrescaPID.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgwRefrescaPID_DoWork);
+            this.wrkMsgPID.DoWork += new System.ComponentModel.DoWorkEventHandler(this.wrkMsgPID_DoWork);
             // 
             // frmGUI
             // 
@@ -191,12 +190,11 @@
         private System.Windows.Forms.ListBox lstPIDActuales;
         private System.Windows.Forms.Button btnDetenerActu;
         private System.Windows.Forms.Button btnActuMsgs;
-        private System.ComponentModel.BackgroundWorker bgwRecibeMensajes;
+        private System.ComponentModel.BackgroundWorker wrkMsgTextBox;
         private System.Windows.Forms.MenuStrip mnuOpciones;
         private System.Windows.Forms.ToolStripMenuItem tsmiIniciar;
         private System.Windows.Forms.ToolStripMenuItem tsmiNuevaInstancia;
-        private System.ComponentModel.BackgroundWorker bgwActualizaPID;
-        private System.ComponentModel.BackgroundWorker bgwRefrescaPID;
+        private System.ComponentModel.BackgroundWorker wrkMsgPID;
     }
 }
 

@@ -26,6 +26,7 @@ namespace frmMenuPrincipal
         #region [Atributos]
 
         private clsKernel objKernel;
+        private clsPasoMensajes objPasoMensajes;
         private clsCerrarPorPID objCerrarInstancia;
 
         #endregion
@@ -36,13 +37,44 @@ namespace frmMenuPrincipal
         {
             InitializeComponent();
             objKernel = new clsKernel();
+            this.objPasoMensajes = new clsPasoMensajes();
             RecuperaIdMaestro();
             objCerrarInstancia = new clsCerrarPorPID();
+            EnviarMensaje("pid");
         }
 
         #endregion
 
         #region [Métodos Privados]
+
+        private bool EnviarMensaje(String tipoMsg)
+        {
+            try
+            {
+                switch (tipoMsg.ToLower())
+                {
+                    case "pid":
+                        objPasoMensajes.TipoMensaje = "started";
+                        objPasoMensajes.Origen = this.Text;
+                        break;
+                    default:
+                        break;
+                }
+
+                if (!objPasoMensajes.EnviarMsg())
+                {
+                    MessageBox.Show(objPasoMensajes.Error, "Módulo Aplicaciones", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error:" + ex.Message, "Módulo Aplicaciones", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+        }
 
         private void RecuperaIdMaestro()
         {
@@ -51,12 +83,14 @@ namespace frmMenuPrincipal
                 MessageBox.Show(objKernel.Error,"Final Sistemas Operativos",MessageBoxButtons.OK,MessageBoxIcon.Error);
             }
         }
-        private void CerradoForm()
+        private bool CerradoForm()
         {
             if (objCerrarInstancia.ConfirmaCerrado())
             {
                 objCerrarInstancia.CerrarInstancia("cerrar-calculadora");
+                return true;
             }
+            else return false;
         }
 
         #endregion
@@ -85,7 +119,10 @@ namespace frmMenuPrincipal
 
         private void frmPrincipal_FormClosing(object sender, FormClosingEventArgs e)
         {
-            CerradoForm();
+            if (!CerradoForm())
+            {
+                e.Cancel = false;
+            }
         }
 
         #endregion

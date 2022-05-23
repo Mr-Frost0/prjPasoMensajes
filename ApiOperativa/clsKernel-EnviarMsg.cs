@@ -12,6 +12,7 @@ namespace KernelSistema
         private String strTipoCalc;
         private String strError;
         private String strOrigen;
+        private String strComando;
         private int intIdProceso;
         private int intCodTerm;
         clsKernel objKernelArranque;
@@ -29,6 +30,7 @@ namespace KernelSistema
             this.strError = "";
             this.strTipoCalc = "";
             this.strOrigen = "";
+            this.strComando = "";
             this.intCodTerm = 0;
             this.intIdProceso = 0;
             this.mensaje = new Message();
@@ -42,6 +44,7 @@ namespace KernelSistema
         public String TipoMensaje { set => strTipoMensaje = value; }
         public String TipoCalc { set => strTipoCalc = value; }
         public String Origen { set => strOrigen = value; }
+        public String Comando { set => strComando = value; }
         public int IdProceso { set => intIdProceso = value; }
         public int CodTerm { set => intCodTerm = value; }
         public String Error { get => strError; }
@@ -68,15 +71,17 @@ namespace KernelSistema
                         mensaje.Body = msgRecibe;
                         objEnviaMensaje.Send(mensaje);
                         break;
-                    case "enviar-pid":
+                    case "started":
                         this.objEnviaMensaje = new MessageQueue(clsConstantes.strRutaCanalPID);
+                        this.objKernelArranque.RecuperaPID("pasomensaje");
+                        msgRecibe.strComando = "started";
                         msgRecibe.intPID = this.objKernelArranque.IdProceso;
                         msgRecibe.strOrigen = this.strOrigen;
                         mensaje.Body = msgRecibe;
                         objEnviaMensaje.Send(mensaje);
                         break;
-                    case "fin-frmCalculadora":
-                        msgRecibe.strMensaje = "";
+                    case "cerrar-form":
+
                         break;
                     default:
                         break;

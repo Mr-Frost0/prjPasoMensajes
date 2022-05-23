@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Messaging;
+using System.Collections.Generic;
 using System.Text;
 
 namespace KernelSistema
@@ -9,6 +10,7 @@ namespace KernelSistema
     {
 
         #region [Atributos]
+
 
         private MessageQueue msgCola;
         private String strMensaje;
@@ -26,13 +28,11 @@ namespace KernelSistema
         {
             this.strMensaje = "";
             this.strError = "";
-            this.msgCola = new MessageQueue(clsConstantes.strRutaCanalMensajes);
             this.msgRecibe = new MsgRecibe();
             this.o = new Object();
             this.arrTipos = new Type[2];
             this.arrTipos[0] = msgRecibe.GetType();
             this.arrTipos[1] = o.GetType();
-            this.msgCola.Formatter = new XmlMessageFormatter(arrTipos);
             this.sb = new StringBuilder();
         }
 
@@ -41,15 +41,11 @@ namespace KernelSistema
         #region [Propiedades]
 
         public String Mensaje { get => strMensaje; }
+        public MsgRecibe MensajeRetorno { get => msgRecibe; }
         public String Error { get => strError; }
 
         #endregion
 
-        #region [Métodos Privados]
-
-
-
-        #endregion
 
         #region [Métodos Públicos]
 
@@ -57,16 +53,23 @@ namespace KernelSistema
         {
             try
             {
-                msgRecibe = ((MsgRecibe)msgCola.Receive().Body);
                 switch (tipoRecibida.ToLower())
                 {
-                    case "operacion-exito":
+                    case "textbox":
+                        this.msgCola = new MessageQueue(clsConstantes.strRutaCanalMensajes);
+                        this.msgCola.Formatter = new XmlMessageFormatter(arrTipos);
+                        msgRecibe = ((MsgRecibe)msgCola.Receive().Body);
                         strMensaje = sb.Append("Mensaje de: " + msgRecibe.strOrigen + "; [" + msgRecibe.intPID + "]; cod:" + msgRecibe.intCodTerm + "; cmd:" + msgRecibe.strComando + "; msg: " + msgRecibe.strMensaje).ToString() + ";";
-                        break;
+                        return true;
+                    case "listbox":
+                        this.msgCola = new MessageQueue(clsConstantes.strRutaCanalPID);
+                        this.msgCola.Formatter = new XmlMessageFormatter(arrTipos);
+                        msgRecibe = ((MsgRecibe)msgCola.Receive().Body);
+                        strMensaje = sb.Append("[" + msgRecibe.intPID + "] " + msgRecibe.strOrigen).ToString();
+                        return true;
                     default:
-                        break;
+                        return false;
                 }
-                return true;
             }
             catch (Exception ex)
             {

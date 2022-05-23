@@ -46,29 +46,6 @@ namespace KernelSistema
 
         #endregion
 
-        #region [Métodos Privados]
-
-        public void EnviarPID(String origen)
-        {
-            switch (origen.ToLower())
-            {
-                case "principales":
-                    enviarPID.Origen = procesoActual.ProcessName;
-                    enviarPID.IdProceso = procesoActual.Id;
-                    break;
-                case "hijos":
-                    enviarPID.Origen = arrancaForm.ProcessName;
-                    enviarPID.IdProceso = arrancaForm.Id;
-                    break;
-                default:
-                    break;
-            }
-            enviarPID.TipoMensaje = "enviar-pid";
-            enviarPID.EnviarMsg();
-        }
-
-        #endregion
-
         #region [Métodos Públicos]
 
         public bool RecuperaPID(String tipoProceso)
@@ -85,7 +62,6 @@ namespace KernelSistema
                     strError = "El método sólo puede ser llamado para recuperar la ID del programa principal, para el módulo Calculadora o para paso de mensajes [test purposes only]";
                     return false;
             }
-            EnviarPID("principales");
             return true;
         }
 
@@ -105,7 +81,6 @@ namespace KernelSistema
                 default:
                     break;
             }
-            EnviarPID("hijos");
         }
 
         #endregion

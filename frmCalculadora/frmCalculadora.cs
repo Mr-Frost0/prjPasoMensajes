@@ -10,9 +10,9 @@ namespace frmCalculadora
 
         #region [Variables Globales]
 
-        clsHacerOperaciones objHacerOpe;
-        clsPasoMensajes objPasoMensajes;
-        clsCerrarPorPID objCerrarForm;
+        private clsHacerOperaciones objHacerOpe;
+        private clsPasoMensajes objPasoMensajes;
+        private clsCerrarPorPID objCerrarForm;
         private String strTipoOpe;
         private String strReplace;
         private Double valor1, valor2;
@@ -30,7 +30,6 @@ namespace frmCalculadora
             this.objHacerOpe = new clsHacerOperaciones();
             this.objPasoMensajes = new clsPasoMensajes();
             this.objCerrarForm = new clsCerrarPorPID();
-
         }
 
         #endregion
@@ -74,6 +73,7 @@ namespace frmCalculadora
             this.grbMakeOpp.Text = "Realizar " + strReplace;
             this.btnOperacion.Text = "Realizar " + strReplace;
             this.Text = "Calculadora de " + strReplace;
+            EnviarMensaje("pid");
         }
 
         private void Limpiar()
@@ -183,7 +183,7 @@ namespace frmCalculadora
         {
             try
             {
-                switch (tipoMsg)
+                switch (tipoMsg.ToLower())
                 {
                     case "op-exito":
                         objPasoMensajes.TipoMensaje = "operacion-exito";
@@ -191,10 +191,13 @@ namespace frmCalculadora
                         objPasoMensajes.CodTerm = 0;
                         objPasoMensajes.Origen = this.Text;
                         break;
+                    case "pid":
+                        objPasoMensajes.TipoMensaje = "started";
+                        objPasoMensajes.Origen = this.Text;
+                        break;
                     default:
                         break;
                 }
-
 
                 if (!objPasoMensajes.EnviarMsg())
                 {
@@ -211,12 +214,14 @@ namespace frmCalculadora
             }
         }
 
-        private void CerradoForm()
+        private bool CerradoForm()
         {
             if (objCerrarForm.ConfirmaCerrado())
             {
-                objCerrarForm.CerrarInstancia("fin-frmCalculadora");
-            }            
+                objCerrarForm.CerrarInstancia("cerrar-calculadora");
+                return true;
+            }
+            else return false;
         }
 
         #endregion
@@ -235,7 +240,10 @@ namespace frmCalculadora
 
         private void frmCalculadora_FormClosing(object sender, FormClosingEventArgs e)
         {
-            CerradoForm();
+            if (!CerradoForm())
+            {
+                e.Cancel = false;
+            }
         }
 
         private void frmCalculadora_Load(object sender, EventArgs e)
