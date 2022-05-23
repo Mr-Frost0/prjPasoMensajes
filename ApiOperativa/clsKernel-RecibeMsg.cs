@@ -65,7 +65,15 @@ namespace KernelSistema
                         this.msgCola = new MessageQueue(clsConstantes.strRutaCanalPID);
                         this.msgCola.Formatter = new XmlMessageFormatter(arrTipos);
                         msgRecibe = ((MsgRecibe)msgCola.Receive().Body);
-                        strMensaje = sb.Append("[" + msgRecibe.intPID + "] " + msgRecibe.strOrigen).ToString();
+                        if (msgRecibe.strComando == "stop")
+                        {
+                            strMensaje = sb.Append("Mensaje de: " + msgRecibe.strOrigen + "; [" + msgRecibe.intPID + "]; cod:" + msgRecibe.intCodTerm + "; cmd:" + msgRecibe.strComando + "; msg: " + msgRecibe.strMensaje + ";").ToString();
+                        }
+                        else if (msgRecibe.strComando == "started")
+                        {
+                            strMensaje = sb.Append("[" + msgRecibe.intPID + "] " + msgRecibe.strOrigen).ToString();
+                            return true;
+                        }
                         return true;
                     default:
                         return false;

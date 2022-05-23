@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using KernelSistema;
 using System.Threading;
 using System.ComponentModel;
+using System.Collections.Generic;
 
 namespace frmGUI
 {
@@ -12,10 +13,10 @@ namespace frmGUI
         #region [Atributos]
 
         private clsKernel objKernel;
-        private clsKernel_PIDActuales objListaPIDActuales;
         private clsCerrarPorPID objCerrarInstancia;
-        private clsRecibeMensajes objRecibeMsg;
         private bool estaArrancado = false;
+        private int[] intPIDsActivos;
+        private int intCantPIDActivos = 0;
 
         #endregion
 
@@ -26,7 +27,7 @@ namespace frmGUI
             InitializeComponent();
             this.objKernel = new clsKernel();
             this.objCerrarInstancia = new clsCerrarPorPID();
-            this.objListaPIDActuales = new clsKernel_PIDActuales();
+            this.intPIDsActivos = new int[1];
             RecuperaIdMaestro();
             this.wrkMsgTextBox.WorkerReportsProgress = true;
             this.wrkMsgTextBox.WorkerSupportsCancellation = true;
@@ -91,7 +92,9 @@ namespace frmGUI
         
         private void RecuperarMensajes(object sender, DoWorkEventArgs e, String tipo)
         {
+            clsRecibeMensajes objRecibeMsg;
             wrkMsgTextBox = sender as BackgroundWorker;
+            CheckForIllegalCrossThreadCalls = false;
 
             while (wrkMsgTextBox.CancellationPending == false)
             {
@@ -111,7 +114,7 @@ namespace frmGUI
                             MessageBox.Show(objRecibeMsg.Error, "Final Sistemas Operativos", MessageBoxButtons.OK, MessageBoxIcon.Information);
                             return;
                         }
-                        CheckForIllegalCrossThreadCalls = false;
+
                         this.txtMensajes.Text += objRecibeMsg.Mensaje;
                         this.txtMensajes.Text += Environment.NewLine;
                         this.txtMensajes.SelectionStart = txtMensajes.Text.Length;
@@ -132,9 +135,9 @@ namespace frmGUI
 
         private void RecuperarPID(object sender, DoWorkEventArgs e, string tipo)
         {
-            wrkMsgPID = sender as BackgroundWorker;
+            clsRecibeMensajes objRecibeMsg;
+            BackgroundWorker wrkMsgPID = sender as BackgroundWorker;
             CheckForIllegalCrossThreadCalls = false;
-            Thread.Sleep(3000);
             while (wrkMsgPID.CancellationPending == false)
             {
                 try
@@ -148,18 +151,22 @@ namespace frmGUI
                     {
                         if (objRecibeMsg.RecibirMsg(tipo))
                         {
-                            
-                            this.lstHistorialPIDs.Items.Add(objRecibeMsg.Mensaje);
-                            this.objListaPIDActuales.MensajeRecibe = objRecibeMsg.MensajeRetorno;
-                            this.objListaPIDActuales.ProcesarPID();
-                            this.lstHistorialPIDs.SelectedIndex = lstHistorialPIDs.Items.Count - 1;
-                            this.lstPIDActuales.DataSource = objListaPIDActuales.ProcesosActivos;
-                            if (this.objListaPIDActuales.SeElimino)
+                            if (objRecibeMsg.MensajeRetorno.strComando == "stop")
                             {
-                                this.txtMensajes.Text += this.objListaPIDActuales.Mensaje;
-                                this.txtMensajes.Text += Environment.NewLine;
+                                this.intPIDsActivos[intCantPIDActivos] = objRecibeMsg.MensajeRetorno.intPID;
+                                this.intCantPIDActivos--;
+                                this.lstPIDActuales.Items.Remove(objRecibeMsg.Mensaje);
+                                this.txtMensajes.Text += objRecibeMsg.Mensaje;
                             }
-                            Thread.Sleep(2500);
+                            if (objRecibeMsg.MensajeRetorno.strComando == "started")
+                            {
+                                this.lstPIDActuales.Items.Add(objRecibeMsg.Mensaje);
+                                this.lstHistorialPIDs.Items.Add(objRecibeMsg.Mensaje);
+                                this.lstPIDActuales.SelectedIndex = lstPIDActuales.Items.Count - 1;
+                                this.lstHistorialPIDs.SelectedIndex = lstHistorialPIDs.Items.Count - 1;
+                                Array.Resize<int>(ref intPIDsActivos, intPIDsActivos.Length+1);
+                                this.intCantPIDActivos++;
+                            }                            
                         }
                     }
                 }
@@ -218,7 +225,7 @@ namespace frmGUI
 
         private void bgwRecibeMensajes_DoWork(object sender, DoWorkEventArgs e)
         {
-            RecuperarMensajes(sender, e, "listbox");
+            RecuperarMensajes(sender, e, "textbox");
         }
 
         private void btnActuMsgs_Click(object sender, EventArgs e)

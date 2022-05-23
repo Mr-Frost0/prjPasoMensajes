@@ -32,7 +32,6 @@
             this.txtMensajes = new System.Windows.Forms.TextBox();
             this.grbPIDs = new System.Windows.Forms.GroupBox();
             this.lstHistorialPIDs = new System.Windows.Forms.ListBox();
-            this.lstPIDActuales = new System.Windows.Forms.ListBox();
             this.btnDetenerActu = new System.Windows.Forms.Button();
             this.btnActuMsgs = new System.Windows.Forms.Button();
             this.wrkMsgTextBox = new System.ComponentModel.BackgroundWorker();
@@ -40,6 +39,7 @@
             this.tsmiIniciar = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiNuevaInstancia = new System.Windows.Forms.ToolStripMenuItem();
             this.wrkMsgPID = new System.ComponentModel.BackgroundWorker();
+            this.lstPIDActuales = new System.Windows.Forms.ListBox();
             this.grbMensajes.SuspendLayout();
             this.grbPIDs.SuspendLayout();
             this.mnuOpciones.SuspendLayout();
@@ -68,8 +68,8 @@
             // 
             // grbPIDs
             // 
-            this.grbPIDs.Controls.Add(this.lstHistorialPIDs);
             this.grbPIDs.Controls.Add(this.lstPIDActuales);
+            this.grbPIDs.Controls.Add(this.lstHistorialPIDs);
             this.grbPIDs.Location = new System.Drawing.Point(674, 50);
             this.grbPIDs.Name = "grbPIDs";
             this.grbPIDs.Size = new System.Drawing.Size(555, 379);
@@ -87,17 +87,6 @@
             this.lstHistorialPIDs.ScrollAlwaysVisible = true;
             this.lstHistorialPIDs.Size = new System.Drawing.Size(537, 172);
             this.lstHistorialPIDs.TabIndex = 1;
-            // 
-            // lstPIDActuales
-            // 
-            this.lstPIDActuales.BackColor = System.Drawing.SystemColors.Control;
-            this.lstPIDActuales.FormattingEnabled = true;
-            this.lstPIDActuales.ItemHeight = 24;
-            this.lstPIDActuales.Location = new System.Drawing.Point(12, 225);
-            this.lstPIDActuales.Name = "lstPIDActuales";
-            this.lstPIDActuales.ScrollAlwaysVisible = true;
-            this.lstPIDActuales.Size = new System.Drawing.Size(537, 148);
-            this.lstPIDActuales.TabIndex = 0;
             // 
             // btnDetenerActu
             // 
@@ -155,6 +144,17 @@
             // 
             this.wrkMsgPID.DoWork += new System.ComponentModel.DoWorkEventHandler(this.wrkMsgPID_DoWork);
             // 
+            // lstPIDActuales
+            // 
+            this.lstPIDActuales.BackColor = System.Drawing.SystemColors.Control;
+            this.lstPIDActuales.FormattingEnabled = true;
+            this.lstPIDActuales.ItemHeight = 24;
+            this.lstPIDActuales.Location = new System.Drawing.Point(12, 216);
+            this.lstPIDActuales.Name = "lstPIDActuales";
+            this.lstPIDActuales.ScrollAlwaysVisible = true;
+            this.lstPIDActuales.Size = new System.Drawing.Size(537, 172);
+            this.lstPIDActuales.TabIndex = 2;
+            // 
             // frmGUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 24F);
@@ -187,7 +187,6 @@
         private System.Windows.Forms.TextBox txtMensajes;
         private System.Windows.Forms.GroupBox grbPIDs;
         private System.Windows.Forms.ListBox lstHistorialPIDs;
-        private System.Windows.Forms.ListBox lstPIDActuales;
         private System.Windows.Forms.Button btnDetenerActu;
         private System.Windows.Forms.Button btnActuMsgs;
         private System.ComponentModel.BackgroundWorker wrkMsgTextBox;
@@ -195,6 +194,7 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiIniciar;
         private System.Windows.Forms.ToolStripMenuItem tsmiNuevaInstancia;
         private System.ComponentModel.BackgroundWorker wrkMsgPID;
+        private System.Windows.Forms.ListBox lstPIDActuales;
     }
 }
 
