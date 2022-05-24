@@ -14,6 +14,7 @@ namespace KernelSistema
 
         private MessageQueue msgCola;
         private String strMensaje;
+        private String strMsgCerrado;
         private String strError;
         private MsgRecibe msgRecibe;
         private Object o;
@@ -28,6 +29,7 @@ namespace KernelSistema
         {
             this.strMensaje = "";
             this.strError = "";
+            this.strMsgCerrado = "";
             this.msgRecibe = new MsgRecibe();
             this.o = new Object();
             this.arrTipos = new Type[2];
@@ -41,6 +43,7 @@ namespace KernelSistema
         #region [Propiedades]
 
         public String Mensaje { get => strMensaje; }
+        public String MensajeCerrado { get => strMsgCerrado; }
         public MsgRecibe MensajeRetorno { get => msgRecibe; }
         public String Error { get => strError; }
 
@@ -68,6 +71,8 @@ namespace KernelSistema
                         if (msgRecibe.strComando == "stop")
                         {
                             strMensaje = sb.Append("Mensaje de: " + msgRecibe.strOrigen + "; [" + msgRecibe.intPID + "]; cod:" + msgRecibe.intCodTerm + "; cmd:" + msgRecibe.strComando + "; msg: " + msgRecibe.strMensaje + ";").ToString();
+                            sb.Clear();
+                            strMsgCerrado = sb.Append("[" + msgRecibe.intPID + "] " + msgRecibe.strOrigen).ToString();
                         }
                         else if (msgRecibe.strComando == "started")
                         {

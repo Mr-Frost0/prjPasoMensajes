@@ -195,6 +195,10 @@ namespace frmCalculadora
                         objPasoMensajes.TipoMensaje = "started";
                         objPasoMensajes.Origen = this.Text;
                         break;
+                    case "stop":
+                        objPasoMensajes.TipoMensaje = "stop";
+                        objPasoMensajes.Origen = this.Text;
+                        break;
                     default:
                         break;
                 }
@@ -242,7 +246,11 @@ namespace frmCalculadora
         {
             if (!CerradoForm())
             {
-                e.Cancel = false;
+                e.Cancel = true;
+            }
+            else
+            {
+                EnviarMensaje("stop");
             }
         }
 

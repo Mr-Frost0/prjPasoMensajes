@@ -58,30 +58,37 @@ namespace KernelSistema
             try
             {
                 this.objKernelArranque = new clsKernel();
+                this.objKernelArranque.RecuperaPID("pasomensaje");
+                this.msgRecibe.intPID = this.objKernelArranque.IdProceso;
+
                 switch (strTipoMensaje.ToLower())
                 {
                     case "operacion-exito":
                         this.objEnviaMensaje = new MessageQueue(clsConstantes.strRutaCanalMensajes);
-                        this.objKernelArranque.RecuperaPID("pasomensaje");
                         msgRecibe.intCodTerm = this.intCodTerm;
-                        msgRecibe.strOrigen = this.strOrigen;
                         msgRecibe.strComando = strTipoMensaje;
-                        msgRecibe.strMensaje = "Operación Exitosa";
-                        msgRecibe.intPID = objKernelArranque.IdProceso;
+                        msgRecibe.strOrigen = this.strOrigen;
+                        msgRecibe.strMensaje = "operación Exitosa";
                         mensaje.Body = msgRecibe;
                         objEnviaMensaje.Send(mensaje);
                         break;
                     case "started":
                         this.objEnviaMensaje = new MessageQueue(clsConstantes.strRutaCanalPID);
-                        this.objKernelArranque.RecuperaPID("pasomensaje");
+                        msgRecibe.intCodTerm = 0;
                         msgRecibe.strComando = "started";
-                        msgRecibe.intPID = this.objKernelArranque.IdProceso;
                         msgRecibe.strOrigen = this.strOrigen;
+                        msgRecibe.strMensaje = "aplicación iniciada";
                         mensaje.Body = msgRecibe;
                         objEnviaMensaje.Send(mensaje);
                         break;
-                    case "cerrar-form":
-
+                    case "stop":
+                        this.objEnviaMensaje = new MessageQueue(clsConstantes.strRutaCanalPID);
+                        this.intCodTerm = 3;
+                        this.msgRecibe.strComando = "stop";
+                        this.msgRecibe.strOrigen = this.strOrigen;
+                        this.msgRecibe.strMensaje = "módulo detenido";
+                        mensaje.Body = msgRecibe;
+                        objEnviaMensaje.Send(mensaje);
                         break;
                     default:
                         break;

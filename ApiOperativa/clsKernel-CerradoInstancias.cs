@@ -46,7 +46,11 @@ namespace KernelSistema
             {
                 return true;
             }
-            else return false;
+            else if (resultado == DialogResult.No)
+            {
+                return false;
+            }
+            return false;
         }
 
         public void CerrarInstancia(String param = "default")

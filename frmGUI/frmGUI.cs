@@ -3,7 +3,7 @@ using System.Windows.Forms;
 using KernelSistema;
 using System.Threading;
 using System.ComponentModel;
-using System.Collections.Generic;
+using System.Linq;
 
 namespace frmGUI
 {
@@ -138,6 +138,10 @@ namespace frmGUI
             clsRecibeMensajes objRecibeMsg;
             BackgroundWorker wrkMsgPID = sender as BackgroundWorker;
             CheckForIllegalCrossThreadCalls = false;
+            String[] strMensajesLista = new string[1];
+            int contador = 0;
+
+
             while (wrkMsgPID.CancellationPending == false)
             {
                 try
@@ -155,8 +159,11 @@ namespace frmGUI
                             {
                                 this.intPIDsActivos[intCantPIDActivos] = objRecibeMsg.MensajeRetorno.intPID;
                                 this.intCantPIDActivos--;
-                                this.lstPIDActuales.Items.Remove(objRecibeMsg.Mensaje);
+                                this.lstPIDActuales.Items.Remove(objRecibeMsg.MensajeCerrado);
+                                strMensajesLista = strMensajesLista.Where(val => val != objRecibeMsg.MensajeCerrado).ToArray();
                                 this.txtMensajes.Text += objRecibeMsg.Mensaje;
+                                this.txtMensajes.Text += Environment.NewLine;
+
                             }
                             if (objRecibeMsg.MensajeRetorno.strComando == "started")
                             {
@@ -165,6 +172,8 @@ namespace frmGUI
                                 this.lstPIDActuales.SelectedIndex = lstPIDActuales.Items.Count - 1;
                                 this.lstHistorialPIDs.SelectedIndex = lstHistorialPIDs.Items.Count - 1;
                                 Array.Resize<int>(ref intPIDsActivos, intPIDsActivos.Length+1);
+                                strMensajesLista[contador] = objRecibeMsg.Mensaje;
+                                Array.Resize<String>(ref strMensajesLista, strMensajesLista.Length+1);
                                 this.intCantPIDActivos++;
                             }                            
                         }
@@ -244,7 +253,7 @@ namespace frmGUI
         {
             if (!CerradoForm())
             {
-                e.Cancel = false;
+                e.Cancel = true;
             }
         }
 

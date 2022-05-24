@@ -57,6 +57,10 @@ namespace frmMenuPrincipal
                         objPasoMensajes.TipoMensaje = "started";
                         objPasoMensajes.Origen = this.Text;
                         break;
+                    case "stop":
+                        objPasoMensajes.TipoMensaje = "stop";
+                        objPasoMensajes.Origen = this.Text;
+                        break;
                     default:
                         break;
                 }
@@ -88,6 +92,7 @@ namespace frmMenuPrincipal
             if (objCerrarInstancia.ConfirmaCerrado())
             {
                 objCerrarInstancia.CerrarInstancia("cerrar-calculadora");
+
                 return true;
             }
             else return false;
@@ -121,7 +126,11 @@ namespace frmMenuPrincipal
         {
             if (!CerradoForm())
             {
-                e.Cancel = false;
+                e.Cancel = true;
+            }
+            else
+            {
+                EnviarMensaje("stop");
             }
         }
 

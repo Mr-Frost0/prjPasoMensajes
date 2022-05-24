@@ -31,6 +31,7 @@
             this.grbMensajes = new System.Windows.Forms.GroupBox();
             this.txtMensajes = new System.Windows.Forms.TextBox();
             this.grbPIDs = new System.Windows.Forms.GroupBox();
+            this.lstPIDActuales = new System.Windows.Forms.ListBox();
             this.lstHistorialPIDs = new System.Windows.Forms.ListBox();
             this.btnDetenerActu = new System.Windows.Forms.Button();
             this.btnActuMsgs = new System.Windows.Forms.Button();
@@ -39,7 +40,6 @@
             this.tsmiIniciar = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiNuevaInstancia = new System.Windows.Forms.ToolStripMenuItem();
             this.wrkMsgPID = new System.ComponentModel.BackgroundWorker();
-            this.lstPIDActuales = new System.Windows.Forms.ListBox();
             this.grbMensajes.SuspendLayout();
             this.grbPIDs.SuspendLayout();
             this.mnuOpciones.SuspendLayout();
@@ -76,6 +76,17 @@
             this.grbPIDs.TabIndex = 8;
             this.grbPIDs.TabStop = false;
             this.grbPIDs.Text = "Ventana PIDs";
+            // 
+            // lstPIDActuales
+            // 
+            this.lstPIDActuales.BackColor = System.Drawing.SystemColors.Control;
+            this.lstPIDActuales.FormattingEnabled = true;
+            this.lstPIDActuales.ItemHeight = 24;
+            this.lstPIDActuales.Location = new System.Drawing.Point(12, 216);
+            this.lstPIDActuales.Name = "lstPIDActuales";
+            this.lstPIDActuales.ScrollAlwaysVisible = true;
+            this.lstPIDActuales.Size = new System.Drawing.Size(537, 148);
+            this.lstPIDActuales.TabIndex = 2;
             // 
             // lstHistorialPIDs
             // 
@@ -143,17 +154,6 @@
             // wrkMsgPID
             // 
             this.wrkMsgPID.DoWork += new System.ComponentModel.DoWorkEventHandler(this.wrkMsgPID_DoWork);
-            // 
-            // lstPIDActuales
-            // 
-            this.lstPIDActuales.BackColor = System.Drawing.SystemColors.Control;
-            this.lstPIDActuales.FormattingEnabled = true;
-            this.lstPIDActuales.ItemHeight = 24;
-            this.lstPIDActuales.Location = new System.Drawing.Point(12, 216);
-            this.lstPIDActuales.Name = "lstPIDActuales";
-            this.lstPIDActuales.ScrollAlwaysVisible = true;
-            this.lstPIDActuales.Size = new System.Drawing.Size(537, 172);
-            this.lstPIDActuales.TabIndex = 2;
             // 
             // frmGUI
             // 
