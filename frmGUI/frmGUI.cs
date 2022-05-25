@@ -14,6 +14,7 @@ namespace frmGUI
 
         private clsKernel objKernel;
         private clsCerrarPorPID objCerrarInstancia;
+        private clsPasoMensajes objPasoMensajes;
         private bool estaArrancado = false;
         private int[] intPIDsActivos;
         private int intCantPIDActivos = 0;
@@ -27,8 +28,8 @@ namespace frmGUI
             InitializeComponent();
             this.objKernel = new clsKernel();
             this.objCerrarInstancia = new clsCerrarPorPID();
+            this.objPasoMensajes = new clsPasoMensajes();
             this.intPIDsActivos = new int[1];
-            RecuperaIdMaestro();
             this.wrkMsgTextBox.WorkerReportsProgress = true;
             this.wrkMsgTextBox.WorkerSupportsCancellation = true;
             ArrancarBGW("arranque");
@@ -38,16 +39,6 @@ namespace frmGUI
 
         #region [Métodos Privados]
 
-        private void RecuperaIdMaestro()
-        {
-            if (!objKernel.RecuperaPID("maestro"))
-            {
-                MessageBox.Show(objKernel.Error, "Final Sistemas Operativos", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            this.lstHistorialPIDs.Items.Add("[" + objKernel.IdProceso.ToString() + "] " + this.Text);
-            this.lstPIDActuales.Items.Add("[" + objKernel.IdProceso.ToString() + "] " + this.Text);
-        }
-
         private void NuevaInstancia()
         {
             objKernel.LanzaForm("mod-aplicaciones");
@@ -55,9 +46,8 @@ namespace frmGUI
 
         private bool CerradoForm()
         {
-            if (objCerrarInstancia.ConfirmaCerrado())
+            if (objCerrarInstancia.ConfirmaCerrado("gui"))
             {
-                objCerrarInstancia.CerrarInstancia("cerrar-gui");
                 return true;
             }
             else return false;
@@ -70,6 +60,7 @@ namespace frmGUI
                 case "arranque":
                     wrkMsgTextBox.RunWorkerAsync();
                     wrkMsgPID.RunWorkerAsync();
+                    wrkArranque.RunWorkerAsync();
                     break;
                 case "default":
                     if (!wrkMsgTextBox.IsBusy)
@@ -80,6 +71,48 @@ namespace frmGUI
                 default:
                     break;
             }
+        }
+
+        private bool EnviarMensaje(String tipoMsg)
+        {
+            try
+            {
+                switch (tipoMsg.ToLower())
+                {
+                    case "listo":
+                        objPasoMensajes.TipoMensaje = "started";
+                        objPasoMensajes.Origen = this.Text;
+                        break;
+                    default:
+                        break;
+                }
+
+                if (!objPasoMensajes.EnviarMsg())
+                {
+                    MessageBox.Show(objPasoMensajes.Error, "Módulo Principal", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Módulo Principal", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+        }
+
+        private bool EstaListo()
+        {
+            CheckForIllegalCrossThreadCalls = false;
+            this.txtMensajes.Text = "Cargando Formulario...";
+            this.Enabled = false;
+            Random espera = new Random();
+            Thread.Sleep(espera.Next(1000, 3000));
+            this.txtMensajes.Text = "";
+            this.Enabled = true;
+            wrkArranque.CancelAsync();
+            return true;
         }
 
         private void DetenerBGW()
@@ -114,12 +147,10 @@ namespace frmGUI
                             MessageBox.Show(objRecibeMsg.Error, "Final Sistemas Operativos", MessageBoxButtons.OK, MessageBoxIcon.Information);
                             return;
                         }
-
                         this.txtMensajes.Text += objRecibeMsg.Mensaje;
                         this.txtMensajes.Text += Environment.NewLine;
                         this.txtMensajes.SelectionStart = txtMensajes.Text.Length;
                         this.txtMensajes.ScrollToCaret();
-                        Thread.Sleep(500);
                     }
                 }
                 catch (Exception ex)
@@ -138,9 +169,9 @@ namespace frmGUI
             clsRecibeMensajes objRecibeMsg;
             BackgroundWorker wrkMsgPID = sender as BackgroundWorker;
             CheckForIllegalCrossThreadCalls = false;
-            String[] strMensajesLista = new string[1];
-            int contador = 0;
-
+            String[] strMensajesLista = new string[1], strCalcsLista = new string[1];
+            int[] intInstanciasCalc = new int[1];
+            int contador = 0, contadorCalcs = 0;
 
             while (wrkMsgPID.CancellationPending == false)
             {
@@ -157,25 +188,75 @@ namespace frmGUI
                         {
                             if (objRecibeMsg.MensajeRetorno.strComando == "stop")
                             {
-                                this.intPIDsActivos[intCantPIDActivos] = objRecibeMsg.MensajeRetorno.intPID;
+                                this.intPIDsActivos = this.intPIDsActivos.Where(val => val != objRecibeMsg.MensajeRetorno.intPID).ToArray();
                                 this.intCantPIDActivos--;
                                 this.lstPIDActuales.Items.Remove(objRecibeMsg.MensajeCerrado);
                                 strMensajesLista = strMensajesLista.Where(val => val != objRecibeMsg.MensajeCerrado).ToArray();
-                                this.txtMensajes.Text += objRecibeMsg.Mensaje;
-                                this.txtMensajes.Text += Environment.NewLine;
-
+                                contador--;
+                                switch (objRecibeMsg.MensajeRetorno.strOrigen.ToLower())
+                                {
+                                    case "calculadora de suma":
+                                    case "calculadora de resta":
+                                    case "calculadora de multiplicación":
+                                    case "calculadora de división":
+                                        intInstanciasCalc = intInstanciasCalc.Where(val => val != objRecibeMsg.MensajeRetorno.intPID).ToArray();
+                                        contadorCalcs--;
+                                        break;
+                                    default:
+                                        break;
+                                }
                             }
                             if (objRecibeMsg.MensajeRetorno.strComando == "started")
                             {
+                                this.intPIDsActivos[intCantPIDActivos] = objRecibeMsg.MensajeRetorno.intPID;
+                                Array.Resize<int>(ref intPIDsActivos, intPIDsActivos.Length + 1);
+                                this.intCantPIDActivos++;
                                 this.lstPIDActuales.Items.Add(objRecibeMsg.Mensaje);
                                 this.lstHistorialPIDs.Items.Add(objRecibeMsg.Mensaje);
                                 this.lstPIDActuales.SelectedIndex = lstPIDActuales.Items.Count - 1;
                                 this.lstHistorialPIDs.SelectedIndex = lstHistorialPIDs.Items.Count - 1;
-                                Array.Resize<int>(ref intPIDsActivos, intPIDsActivos.Length+1);
                                 strMensajesLista[contador] = objRecibeMsg.Mensaje;
+                                contador++;
+
                                 Array.Resize<String>(ref strMensajesLista, strMensajesLista.Length+1);
-                                this.intCantPIDActivos++;
-                            }                            
+                                switch (objRecibeMsg.MensajeRetorno.strOrigen.ToLower())
+                                {
+                                    case "calculadora de suma":
+                                    case "calculadora de resta":
+                                    case "calculadora de multiplicación":
+                                    case "calculadora de división":
+                                        Array.Resize<int>(ref intInstanciasCalc, intInstanciasCalc.Length+1);
+                                        intInstanciasCalc[contadorCalcs] = objRecibeMsg.MensajeRetorno.intPID;
+                                        Array.Resize<String>(ref strCalcsLista, strCalcsLista.Length + 1);
+                                        strCalcsLista[contadorCalcs] = objRecibeMsg.Mensaje;
+                                        contadorCalcs++;
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                            if (objRecibeMsg.MensajeRetorno.strComando == "stop-all-calc")
+                            {
+                                objCerrarInstancia.PIDS = intInstanciasCalc;
+
+                                foreach (string calcViva in strCalcsLista)
+                                {
+                                    this.lstPIDActuales.Items.Remove(calcViva);
+                                }
+                                foreach (int pid in intPIDsActivos)
+                                {
+                                    this.intPIDsActivos = this.intPIDsActivos.Where(val => val != pid).ToArray();
+                                    this.intCantPIDActivos--;
+                                }
+                                intInstanciasCalc = null;
+                                intInstanciasCalc = new int[1];
+                                strCalcsLista = null;
+                                strCalcsLista = new string[1];
+                                contadorCalcs = 0;
+                                this.intPIDsActivos = new int[1];
+                                this.intCantPIDActivos = 0;
+                                objCerrarInstancia.Cerrar("stop-all-calc");
+                            }
                         }
                     }
                 }
@@ -223,6 +304,14 @@ namespace frmGUI
             }
         }
 
+        private void FinalizarPrograma()
+        {
+            objKernel.RecuperaPID("maestro");
+            this.intPIDsActivos = this.intPIDsActivos.Where(val => val != objKernel.IdProceso).ToArray();
+            objCerrarInstancia.PIDS = this.intPIDsActivos;
+            objCerrarInstancia.Cerrar("all");
+        }
+
         #endregion
 
         #region [Eventos]
@@ -240,7 +329,7 @@ namespace frmGUI
         private void btnActuMsgs_Click(object sender, EventArgs e)
         {
             ActuEstado("arrancado");
-            ArrancarBGW("defaul");
+            ArrancarBGW("default");
         }
 
         private void btnDetenerActu_Click(object sender, EventArgs e)
@@ -255,11 +344,23 @@ namespace frmGUI
             {
                 e.Cancel = true;
             }
+            else
+            {
+                FinalizarPrograma();
+            }
         }
 
         private void wrkMsgPID_DoWork(object sender, DoWorkEventArgs e)
         {
             RecuperarPID(sender, e, "listbox");
+        }
+
+        private void wrkArranque_DoWork(object sender, DoWorkEventArgs e)
+        {
+            if (EstaListo())
+            {
+                EnviarMensaje("listo");
+            }
         }
 
         #endregion

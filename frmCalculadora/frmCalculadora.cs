@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 using KernelSistema;
 using OperacionesMatematicas;
+using System.Threading;
 
 namespace frmCalculadora
 {
@@ -16,25 +17,45 @@ namespace frmCalculadora
         private String strTipoOpe;
         private String strReplace;
         private Double valor1, valor2;
-        String[] args = Environment.GetCommandLineArgs();
-        bool debeReiniciar = false;
+        private String[] args = Environment.GetCommandLineArgs();
+        private bool debeReiniciar = false;
+        private String strQueCierra;
 
         #endregion
+
+        #region [Constantes]
+        private const int UNO = 1;
+        private const string VACIO = "";
+        #endregion 
 
         #region [Constructor]
 
         public frmCalculadora()
         {
             InitializeComponent();
-            this.strTipoOpe = args[1];
+            this.strTipoOpe = args[UNO];
             this.objHacerOpe = new clsHacerOperaciones();
             this.objPasoMensajes = new clsPasoMensajes();
             this.objCerrarForm = new clsCerrarPorPID();
+            wrkArranque.RunWorkerAsync();
+            this.ControlBox = false;
         }
 
         #endregion
 
         #region [Métodos Privados]
+
+        private bool EstaListo()
+        {
+            this.lblResultado.Text = "Cargando Formulario...";
+            this.Enabled = false;
+            Random espera = new Random();
+            Thread.Sleep(espera.Next(1000, 3000));
+            this.lblResultado.Text = VACIO;
+            this.Enabled = true;
+            wrkArranque.CancelAsync();
+            return true;
+        }
 
         private bool HayErrorArranque()
         {
@@ -82,9 +103,9 @@ namespace frmCalculadora
             {
                 return;
             }
-            this.txtValor1.Text = "";
-            this.txtValor2.Text = "";
-            this.lblResultado.Text = "";
+            this.txtValor1.Text = VACIO;
+            this.txtValor2.Text = VACIO;
+            this.lblResultado.Text = VACIO;
         }
 
         private void Calcular()
@@ -191,12 +212,16 @@ namespace frmCalculadora
                         objPasoMensajes.CodTerm = 0;
                         objPasoMensajes.Origen = this.Text;
                         break;
-                    case "pid":
+                    case "listo":
                         objPasoMensajes.TipoMensaje = "started";
                         objPasoMensajes.Origen = this.Text;
                         break;
                     case "stop":
                         objPasoMensajes.TipoMensaje = "stop";
+                        objPasoMensajes.Origen = this.Text;
+                        break;
+                    case "stop-all-calc":
+                        objPasoMensajes.TipoMensaje = "stop-all-calc";
                         objPasoMensajes.Origen = this.Text;
                         break;
                     default:
@@ -218,11 +243,10 @@ namespace frmCalculadora
             }
         }
 
-        private bool CerradoForm()
+        private bool CerradoForm(String s)
         {
-            if (objCerrarForm.ConfirmaCerrado())
+            if (objCerrarForm.ConfirmaCerrado(s))
             {
-                objCerrarForm.CerrarInstancia("cerrar-calculadora");
                 return true;
             }
             else return false;
@@ -244,14 +268,36 @@ namespace frmCalculadora
 
         private void frmCalculadora_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (!CerradoForm())
-            {
-                e.Cancel = true;
-            }
-            else
+            if (strQueCierra == "calculadora")
             {
                 EnviarMensaje("stop");
             }
+        }
+
+        private void wrkArranque_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
+            if (EstaListo())
+            {
+                EnviarMensaje("listo");
+            }
+        }
+
+        private void tsmiCerrarActual_Click(object sender, EventArgs e)
+        {
+            strQueCierra = "calculadora";
+            if (CerradoForm(strQueCierra))
+            {
+                this.Close();
+            }
+        }
+
+        private void tsmiCerrarTodasCalc_Click(object sender, EventArgs e)
+        {
+            strQueCierra = "aplicaciones";
+            if (CerradoForm(strQueCierra))
+            {
+                EnviarMensaje("stop-all-calc");
+            }          
         }
 
         private void frmCalculadora_Load(object sender, EventArgs e)

@@ -4,6 +4,7 @@ namespace OperacionesMatematicas
 {
     public class clsHacerOperaciones
     {
+        //Distribuímos el código en regiones, para hacerlo más entendible y organizado
 
         #region [Atributos]
 
@@ -14,20 +15,27 @@ namespace OperacionesMatematicas
 
         #endregion
 
+        #region [Constantes]
+
+        private const double CERO = 0.0;
+        private const string VACIO = "";
+
+        #endregion
+
         #region [Constructor]
 
         public clsHacerOperaciones()
         {
-            this.dblValorUno = 0;
-            this.dblValorDos = 0;
-            this.strTipoOpe = "";
-            this.strError = "";
-            this.dblResultado = 0;
+            this.dblValorUno = CERO;
+            this.dblValorDos = CERO;
+            this.strTipoOpe = VACIO;
+            this.strError = VACIO;
+            this.dblResultado = CERO;
         }
 
         #endregion
 
-        #region [Propiedades]
+        #region [Propiedades] 
 
         public double ValorUno { set => dblValorUno = value; }
         public double ValorDos { set => dblValorDos = value; }
@@ -50,7 +58,7 @@ namespace OperacionesMatematicas
                     case "multiplicar":
                         break;
                     case "dividir":
-                        if (dblValorDos == 0)
+                        if (dblValorDos == CERO)
                         {
                             strError = "No se puede realizar una división por cero";
                             return false;
@@ -69,6 +77,7 @@ namespace OperacionesMatematicas
             }
         }
 
+        // En este metodo se lleva a cabo las operaciones principales del método aplicaciones.
         private bool Operar()
         {
             try

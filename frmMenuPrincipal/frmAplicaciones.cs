@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 using KernelSistema;
+using System.Threading;
 
 namespace frmMenuPrincipal
 {
@@ -40,12 +41,24 @@ namespace frmMenuPrincipal
             this.objPasoMensajes = new clsPasoMensajes();
             RecuperaIdMaestro();
             objCerrarInstancia = new clsCerrarPorPID();
-            EnviarMensaje("pid");
+            wrkArranque.RunWorkerAsync();
         }
 
         #endregion
 
         #region [Métodos Privados]
+
+        private bool EstaListo()
+        {
+            this.Text = "Cargando Formulario...";
+            this.Enabled = false;
+            Random espera = new Random();
+            Thread.Sleep(espera.Next(1000, 3000));
+            this.Text = "Final Sistemas Operativos";
+            this.Enabled = true;
+            wrkArranque.CancelAsync();
+            return true;
+        }
 
         private bool EnviarMensaje(String tipoMsg)
         {
@@ -53,12 +66,16 @@ namespace frmMenuPrincipal
             {
                 switch (tipoMsg.ToLower())
                 {
-                    case "pid":
+                    case "listo":
                         objPasoMensajes.TipoMensaje = "started";
                         objPasoMensajes.Origen = this.Text;
                         break;
                     case "stop":
                         objPasoMensajes.TipoMensaje = "stop";
+                        objPasoMensajes.Origen = this.Text;
+                        break;
+                    case "stop-all-calc":
+                        objPasoMensajes.TipoMensaje = "stop-all-calc";
                         objPasoMensajes.Origen = this.Text;
                         break;
                     default:
@@ -86,13 +103,13 @@ namespace frmMenuPrincipal
             {
                 MessageBox.Show(objKernel.Error,"Final Sistemas Operativos",MessageBoxButtons.OK,MessageBoxIcon.Error);
             }
-        }
-        private bool CerradoForm()
-        {
-            if (objCerrarInstancia.ConfirmaCerrado())
-            {
-                objCerrarInstancia.CerrarInstancia("cerrar-calculadora");
 
+        }
+
+        private bool CerradoForm(String s)
+        {
+            if (objCerrarInstancia.ConfirmaCerrado(s))
+            {
                 return true;
             }
             else return false;
@@ -124,18 +141,31 @@ namespace frmMenuPrincipal
 
         private void frmPrincipal_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (!CerradoForm())
+            if (!CerradoForm("aplicaciones"))
             {
                 e.Cancel = true;
             }
             else
             {
                 EnviarMensaje("stop");
+                EnviarMensaje("stop-all-calc");
             }
         }
 
-        #endregion
+        private void wrkArranque_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
+            if (EstaListo())
+            {
+                EnviarMensaje("listo");
+            }
+        }
 
+        private void tsmiSalir_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        #endregion
 
     }
 }

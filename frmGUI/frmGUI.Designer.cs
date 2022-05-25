@@ -40,6 +40,7 @@
             this.tsmiIniciar = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiNuevaInstancia = new System.Windows.Forms.ToolStripMenuItem();
             this.wrkMsgPID = new System.ComponentModel.BackgroundWorker();
+            this.wrkArranque = new System.ComponentModel.BackgroundWorker();
             this.grbMensajes.SuspendLayout();
             this.grbPIDs.SuspendLayout();
             this.mnuOpciones.SuspendLayout();
@@ -123,6 +124,7 @@
             // 
             // wrkMsgTextBox
             // 
+            this.wrkMsgTextBox.WorkerSupportsCancellation = true;
             this.wrkMsgTextBox.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgwRecibeMensajes_DoWork);
             // 
             // mnuOpciones
@@ -154,6 +156,11 @@
             // wrkMsgPID
             // 
             this.wrkMsgPID.DoWork += new System.ComponentModel.DoWorkEventHandler(this.wrkMsgPID_DoWork);
+            // 
+            // wrkArranque
+            // 
+            this.wrkArranque.WorkerSupportsCancellation = true;
+            this.wrkArranque.DoWork += new System.ComponentModel.DoWorkEventHandler(this.wrkArranque_DoWork);
             // 
             // frmGUI
             // 
@@ -195,6 +202,7 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiNuevaInstancia;
         private System.ComponentModel.BackgroundWorker wrkMsgPID;
         private System.Windows.Forms.ListBox lstPIDActuales;
+        private System.ComponentModel.BackgroundWorker wrkArranque;
     }
 }
 

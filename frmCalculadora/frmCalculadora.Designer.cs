@@ -38,8 +38,14 @@ namespace frmCalculadora
             this.btnLimpiar = new System.Windows.Forms.Button();
             this.grbResultado = new System.Windows.Forms.GroupBox();
             this.lblResultado = new System.Windows.Forms.Label();
+            this.wrkArranque = new System.ComponentModel.BackgroundWorker();
+            this.mnuCerrar = new System.Windows.Forms.MenuStrip();
+            this.tsmiSalir = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiCerrarActual = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiCerrarTodasCalc = new System.Windows.Forms.ToolStripMenuItem();
             this.grbMakeOpp.SuspendLayout();
             this.grbResultado.SuspendLayout();
+            this.mnuCerrar.SuspendLayout();
             this.SuspendLayout();
             // 
             // grbMakeOpp
@@ -48,7 +54,7 @@ namespace frmCalculadora
             this.grbMakeOpp.Controls.Add(this.lblSegundoValor);
             this.grbMakeOpp.Controls.Add(this.txtValor1);
             this.grbMakeOpp.Controls.Add(this.lblPrimerValor);
-            this.grbMakeOpp.Location = new System.Drawing.Point(12, 12);
+            this.grbMakeOpp.Location = new System.Drawing.Point(12, 27);
             this.grbMakeOpp.Name = "grbMakeOpp";
             this.grbMakeOpp.Size = new System.Drawing.Size(435, 174);
             this.grbMakeOpp.TabIndex = 0;
@@ -89,7 +95,7 @@ namespace frmCalculadora
             // 
             // btnOperacion
             // 
-            this.btnOperacion.Location = new System.Drawing.Point(95, 201);
+            this.btnOperacion.Location = new System.Drawing.Point(95, 216);
             this.btnOperacion.Name = "btnOperacion";
             this.btnOperacion.Size = new System.Drawing.Size(133, 60);
             this.btnOperacion.TabIndex = 4;
@@ -99,7 +105,7 @@ namespace frmCalculadora
             // 
             // btnLimpiar
             // 
-            this.btnLimpiar.Location = new System.Drawing.Point(234, 201);
+            this.btnLimpiar.Location = new System.Drawing.Point(234, 216);
             this.btnLimpiar.Name = "btnLimpiar";
             this.btnLimpiar.Size = new System.Drawing.Size(133, 60);
             this.btnLimpiar.TabIndex = 5;
@@ -110,7 +116,7 @@ namespace frmCalculadora
             // grbResultado
             // 
             this.grbResultado.Controls.Add(this.lblResultado);
-            this.grbResultado.Location = new System.Drawing.Point(12, 277);
+            this.grbResultado.Location = new System.Drawing.Point(12, 292);
             this.grbResultado.Name = "grbResultado";
             this.grbResultado.Size = new System.Drawing.Size(435, 106);
             this.grbResultado.TabIndex = 4;
@@ -127,16 +133,56 @@ namespace frmCalculadora
             this.lblResultado.TabIndex = 0;
             this.lblResultado.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // wrkArranque
+            // 
+            this.wrkArranque.WorkerSupportsCancellation = true;
+            this.wrkArranque.DoWork += new System.ComponentModel.DoWorkEventHandler(this.wrkArranque_DoWork);
+            // 
+            // mnuCerrar
+            // 
+            this.mnuCerrar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiSalir});
+            this.mnuCerrar.Location = new System.Drawing.Point(0, 0);
+            this.mnuCerrar.Name = "mnuCerrar";
+            this.mnuCerrar.Size = new System.Drawing.Size(470, 24);
+            this.mnuCerrar.TabIndex = 6;
+            this.mnuCerrar.Text = "mnuSalir";
+            // 
+            // tsmiSalir
+            // 
+            this.tsmiSalir.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiCerrarActual,
+            this.tsmiCerrarTodasCalc});
+            this.tsmiSalir.Name = "tsmiSalir";
+            this.tsmiSalir.Size = new System.Drawing.Size(41, 20);
+            this.tsmiSalir.Text = "&Salir";
+            // 
+            // tsmiCerrarActual
+            // 
+            this.tsmiCerrarActual.Name = "tsmiCerrarActual";
+            this.tsmiCerrarActual.Size = new System.Drawing.Size(227, 22);
+            this.tsmiCerrarActual.Text = "&Cerrar Instancia Actual";
+            this.tsmiCerrarActual.Click += new System.EventHandler(this.tsmiCerrarActual_Click);
+            // 
+            // tsmiCerrarTodasCalc
+            // 
+            this.tsmiCerrarTodasCalc.Name = "tsmiCerrarTodasCalc";
+            this.tsmiCerrarTodasCalc.Size = new System.Drawing.Size(227, 22);
+            this.tsmiCerrarTodasCalc.Text = "&Cerrar Todas las Calculadoras";
+            this.tsmiCerrarTodasCalc.Click += new System.EventHandler(this.tsmiCerrarTodasCalc_Click);
+            // 
             // frmCalculadora
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(470, 395);
+            this.ClientSize = new System.Drawing.Size(470, 410);
             this.Controls.Add(this.grbResultado);
             this.Controls.Add(this.btnLimpiar);
             this.Controls.Add(this.btnOperacion);
             this.Controls.Add(this.grbMakeOpp);
+            this.Controls.Add(this.mnuCerrar);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F);
+            this.MainMenuStrip = this.mnuCerrar;
             this.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             this.Name = "frmCalculadora";
             this.Text = "Calculadora de {operation}";
@@ -145,7 +191,10 @@ namespace frmCalculadora
             this.grbMakeOpp.ResumeLayout(false);
             this.grbMakeOpp.PerformLayout();
             this.grbResultado.ResumeLayout(false);
+            this.mnuCerrar.ResumeLayout(false);
+            this.mnuCerrar.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -160,6 +209,11 @@ namespace frmCalculadora
         private System.Windows.Forms.Button btnLimpiar;
         private System.Windows.Forms.GroupBox grbResultado;
         private System.Windows.Forms.Label lblResultado;
+        private System.ComponentModel.BackgroundWorker wrkArranque;
+        private System.Windows.Forms.MenuStrip mnuCerrar;
+        private System.Windows.Forms.ToolStripMenuItem tsmiSalir;
+        private System.Windows.Forms.ToolStripMenuItem tsmiCerrarActual;
+        private System.Windows.Forms.ToolStripMenuItem tsmiCerrarTodasCalc;
     }
 }
 

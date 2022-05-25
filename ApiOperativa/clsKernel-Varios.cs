@@ -7,7 +7,6 @@ namespace KernelSistema
     {
         public static String strRutaCanalMensajes = SystemInformation.ComputerName + "\\Private$\\canalpasomensajes";
         public static String strRutaCanalPID = SystemInformation.ComputerName + "\\Private$\\canalpasopid";
-        public static String strRutaFinalizacion = SystemInformation.ComputerName + "\\Private$\\canalfinalizaciones";
         public static String strRutaCalculadora = AppDomain.CurrentDomain.BaseDirectory.Replace("frmMenuPrincipal", "frmCalculadora") + "frmCalculadora.exe";
         public static String strRutaModApps = AppDomain.CurrentDomain.BaseDirectory.Replace("frmGUI","frmMenuPrincipal") + "frmMenuPrincipal.exe";
     }

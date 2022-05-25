@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace KernelSistema
@@ -10,6 +11,8 @@ namespace KernelSistema
 
         private int intPID;
         private clsPasoMensajes enviarTerminacion;
+        private String strParamCerrado;
+        private int[] intPIDS;
         
         
         #endregion
@@ -20,6 +23,7 @@ namespace KernelSistema
         {
             this.intPID = 0;
             this.enviarTerminacion = new clsPasoMensajes();
+            this.strParamCerrado = "";
         }
         
         #endregion
@@ -27,21 +31,35 @@ namespace KernelSistema
         #region [Propiedades]
 
         public int PID { set => intPID = value; }
-        
+        public int[] PIDS { set => intPIDS = value; }
+        public String ParamCerrado { get => strParamCerrado; }
+
         #endregion
 
         #region [Métodos Privados]
 
 
-        
+
         #endregion
 
         #region [Métodos Públicos]
 
-        public bool ConfirmaCerrado()
+        public bool ConfirmaCerrado(String modACerrar)
         {
-            DialogResult resultado = MessageBox.Show("Desea salir del programa?\nEsto implica cerrar todas las demás instancias de programas abiertos mediante esta aplicación.", "Confirmacion",
-                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            DialogResult resultado;
+
+            switch (modACerrar.ToLower())
+            {
+                case "aplicaciones":
+                case "gui":
+                    resultado = MessageBox.Show("Desea salir del programa?\nEsto implica cerrar todas las demás instancias de programas abiertos mediante esta aplicación.", "Confirmacion", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    break;
+                case "calculadora":
+                    resultado = MessageBox.Show("Desea cerrar el módulo actual?","Confirmacion",MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    break;
+                default:
+                    return false;
+            }
             if (resultado == DialogResult.Yes)
             {
                 return true;
@@ -50,23 +68,30 @@ namespace KernelSistema
             {
                 return false;
             }
-            return false;
+            else return false;
         }
 
-        public void CerrarInstancia(String param = "default")
+        public bool Cerrar(String tipo)
         {
-            try
+            switch (tipo.ToLower())
             {
-                enviarTerminacion.TipoMensaje = param;
-                enviarTerminacion.EnviarMsg();
+                case "all":
+                case "stop-all-calc":
+                    foreach (int pid in intPIDS)
+                    {
+                        if (pid != 0)
+                        {
+                            Process prcAMatar = Process.GetProcessById(pid);
+                            prcAMatar.Kill();
+                        }                        
+                    }
+                    break;
+                default:
+                    break;
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            return true;
         }
 
-        
         #endregion
 
     }

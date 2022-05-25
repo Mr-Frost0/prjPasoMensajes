@@ -70,8 +70,6 @@ namespace KernelSistema
                         msgRecibe = ((MsgRecibe)msgCola.Receive().Body);
                         if (msgRecibe.strComando == "stop")
                         {
-                            strMensaje = sb.Append("Mensaje de: " + msgRecibe.strOrigen + "; [" + msgRecibe.intPID + "]; cod:" + msgRecibe.intCodTerm + "; cmd:" + msgRecibe.strComando + "; msg: " + msgRecibe.strMensaje + ";").ToString();
-                            sb.Clear();
                             strMsgCerrado = sb.Append("[" + msgRecibe.intPID + "] " + msgRecibe.strOrigen).ToString();
                         }
                         else if (msgRecibe.strComando == "started")

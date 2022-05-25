@@ -35,7 +35,11 @@ namespace frmMenuPrincipal
             this.btnResta = new System.Windows.Forms.Button();
             this.btnSuma = new System.Windows.Forms.Button();
             this.lblTitulo = new System.Windows.Forms.Label();
+            this.wrkArranque = new System.ComponentModel.BackgroundWorker();
+            this.mnuCerrar = new System.Windows.Forms.MenuStrip();
+            this.tsmiSalir = new System.Windows.Forms.ToolStripMenuItem();
             this.grbMenuPrincipal.SuspendLayout();
+            this.mnuCerrar.SuspendLayout();
             this.SuspendLayout();
             // 
             // grbMenuPrincipal
@@ -101,11 +105,34 @@ namespace frmMenuPrincipal
             this.lblTitulo.Text = "[Test] Instanciador de Calculadoras - Versión no Final";
             this.lblTitulo.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
+            // wrkArranque
+            // 
+            this.wrkArranque.WorkerSupportsCancellation = true;
+            this.wrkArranque.DoWork += new System.ComponentModel.DoWorkEventHandler(this.wrkArranque_DoWork);
+            // 
+            // mnuCerrar
+            // 
+            this.mnuCerrar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiSalir});
+            this.mnuCerrar.Location = new System.Drawing.Point(0, 0);
+            this.mnuCerrar.Name = "mnuCerrar";
+            this.mnuCerrar.Size = new System.Drawing.Size(354, 24);
+            this.mnuCerrar.TabIndex = 7;
+            this.mnuCerrar.Text = "mnuSalir";
+            // 
+            // tsmiSalir
+            // 
+            this.tsmiSalir.Name = "tsmiSalir";
+            this.tsmiSalir.Size = new System.Drawing.Size(41, 20);
+            this.tsmiSalir.Text = "&Salir";
+            this.tsmiSalir.Click += new System.EventHandler(this.tsmiSalir_Click);
+            // 
             // frmPrincipal
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(354, 410);
+            this.Controls.Add(this.mnuCerrar);
             this.Controls.Add(this.grbMenuPrincipal);
             this.Controls.Add(this.lblTitulo);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F);
@@ -114,7 +141,10 @@ namespace frmMenuPrincipal
             this.Text = "Final Sistemas Operativos";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmPrincipal_FormClosing);
             this.grbMenuPrincipal.ResumeLayout(false);
+            this.mnuCerrar.ResumeLayout(false);
+            this.mnuCerrar.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -125,6 +155,9 @@ namespace frmMenuPrincipal
         private System.Windows.Forms.Button btnResta;
         private System.Windows.Forms.Button btnSuma;
         private System.Windows.Forms.Label lblTitulo;
+        private System.ComponentModel.BackgroundWorker wrkArranque;
+        private System.Windows.Forms.MenuStrip mnuCerrar;
+        private System.Windows.Forms.ToolStripMenuItem tsmiSalir;
     }
 }
 
