@@ -4,7 +4,7 @@ using System.Windows.Forms;
 
 namespace KernelSistema
 {
-    public class clsCerrarPorPID
+    public class clsCerradoInstancias
     {
 
         #region [Atributos]
@@ -19,7 +19,7 @@ namespace KernelSistema
 
         #region [Constructor]
 
-        public clsCerrarPorPID()
+        public clsCerradoInstancias()
         {
             this.intPID = 0;
             this.enviarTerminacion = new clsPasoMensajes();

@@ -28,7 +28,7 @@ namespace frmMenuPrincipal
 
         private clsKernel objKernel;
         private clsPasoMensajes objPasoMensajes;
-        private clsCerrarPorPID objCerrarInstancia;
+        private clsCerradoInstancias objCerrarInstancia;
 
         #endregion
 
@@ -40,7 +40,7 @@ namespace frmMenuPrincipal
             objKernel = new clsKernel();
             this.objPasoMensajes = new clsPasoMensajes();
             RecuperaIdMaestro();
-            objCerrarInstancia = new clsCerrarPorPID();
+            objCerrarInstancia = new clsCerradoInstancias();
             wrkArranque.RunWorkerAsync();
         }
 

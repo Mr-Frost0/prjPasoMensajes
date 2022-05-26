@@ -41,6 +41,9 @@
             this.tsmiNuevaInstancia = new System.Windows.Forms.ToolStripMenuItem();
             this.wrkMsgPID = new System.ComponentModel.BackgroundWorker();
             this.wrkArranque = new System.ComponentModel.BackgroundWorker();
+            this.tsmiCerrar = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiCerrarCalcs = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiCerrarModApps = new System.Windows.Forms.ToolStripMenuItem();
             this.grbMensajes.SuspendLayout();
             this.grbPIDs.SuspendLayout();
             this.mnuOpciones.SuspendLayout();
@@ -130,10 +133,11 @@
             // mnuOpciones
             // 
             this.mnuOpciones.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiIniciar});
+            this.tsmiIniciar,
+            this.tsmiCerrar});
             this.mnuOpciones.Location = new System.Drawing.Point(0, 0);
             this.mnuOpciones.Name = "mnuOpciones";
-            this.mnuOpciones.Size = new System.Drawing.Size(1241, 33);
+            this.mnuOpciones.Size = new System.Drawing.Size(1241, 27);
             this.mnuOpciones.TabIndex = 11;
             this.mnuOpciones.Text = "menuStrip1";
             // 
@@ -141,15 +145,15 @@
             // 
             this.tsmiIniciar.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiNuevaInstancia});
-            this.tsmiIniciar.Font = new System.Drawing.Font("Segoe UI", 14F);
+            this.tsmiIniciar.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.tsmiIniciar.Name = "tsmiIniciar";
-            this.tsmiIniciar.Size = new System.Drawing.Size(76, 29);
+            this.tsmiIniciar.Size = new System.Drawing.Size(57, 23);
             this.tsmiIniciar.Text = "&Iniciar";
             // 
             // tsmiNuevaInstancia
             // 
             this.tsmiNuevaInstancia.Name = "tsmiNuevaInstancia";
-            this.tsmiNuevaInstancia.Size = new System.Drawing.Size(400, 30);
+            this.tsmiNuevaInstancia.Size = new System.Drawing.Size(305, 24);
             this.tsmiNuevaInstancia.Text = "&Nueva Instancia Módulo Aplicaciones";
             this.tsmiNuevaInstancia.Click += new System.EventHandler(this.tsmiNuevaInstancia_Click);
             // 
@@ -161,6 +165,30 @@
             // 
             this.wrkArranque.WorkerSupportsCancellation = true;
             this.wrkArranque.DoWork += new System.ComponentModel.DoWorkEventHandler(this.wrkArranque_DoWork);
+            // 
+            // tsmiCerrar
+            // 
+            this.tsmiCerrar.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiCerrarCalcs,
+            this.tsmiCerrarModApps});
+            this.tsmiCerrar.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.tsmiCerrar.Name = "tsmiCerrar";
+            this.tsmiCerrar.Size = new System.Drawing.Size(59, 23);
+            this.tsmiCerrar.Text = "&Cerrar";
+            // 
+            // tsmiCerrarCalcs
+            // 
+            this.tsmiCerrarCalcs.Name = "tsmiCerrarCalcs";
+            this.tsmiCerrarCalcs.Size = new System.Drawing.Size(249, 24);
+            this.tsmiCerrarCalcs.Text = "&Todas las Calculadoras";
+            this.tsmiCerrarCalcs.Click += new System.EventHandler(this.tsmiCerrarCalcs_Click);
+            // 
+            // tsmiCerrarModApps
+            // 
+            this.tsmiCerrarModApps.Name = "tsmiCerrarModApps";
+            this.tsmiCerrarModApps.Size = new System.Drawing.Size(249, 24);
+            this.tsmiCerrarModApps.Text = "&Módulo Aplicaciones e Hijos";
+            this.tsmiCerrarModApps.Click += new System.EventHandler(this.tsmiCerrarModApps_Click);
             // 
             // frmGUI
             // 
@@ -203,6 +231,9 @@
         private System.ComponentModel.BackgroundWorker wrkMsgPID;
         private System.Windows.Forms.ListBox lstPIDActuales;
         private System.ComponentModel.BackgroundWorker wrkArranque;
+        private System.Windows.Forms.ToolStripMenuItem tsmiCerrar;
+        private System.Windows.Forms.ToolStripMenuItem tsmiCerrarCalcs;
+        private System.Windows.Forms.ToolStripMenuItem tsmiCerrarModApps;
     }
 }
 

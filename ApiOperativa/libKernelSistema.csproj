@@ -47,6 +47,7 @@
     <Compile Include="clsKernel-CerradoInstancias.cs" />
     <Compile Include="clsKernel-EnviarMsg.cs" />
     <Compile Include="clsKernel-Arranque.cs" />
+    <Compile Include="clsKernel-GestorArchivos.cs" />
     <Compile Include="clsKernel-Varios.cs" />
     <Compile Include="clsKernel-RecibeMsg.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

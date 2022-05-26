@@ -13,11 +13,16 @@ namespace frmGUI
         #region [Atributos]
 
         private clsKernel objKernel;
-        private clsCerrarPorPID objCerrarInstancia;
+        private clsCerradoInstancias objCerrarInstancia;
         private clsPasoMensajes objPasoMensajes;
-        private bool estaArrancado = false;
+        private clsRecibeMensajes objRecibeMsg;
+
+        private bool estaArrancado;
+        private int intCantPIDActivos;
+
+        private String[] strMensajesLista;
+        private String[] strCalcsLista;
         private int[] intPIDsActivos;
-        private int intCantPIDActivos = 0;
 
         #endregion
 
@@ -26,12 +31,22 @@ namespace frmGUI
         public frmGUI()
         {
             InitializeComponent();
+
             this.objKernel = new clsKernel();
-            this.objCerrarInstancia = new clsCerrarPorPID();
+            this.objCerrarInstancia = new clsCerradoInstancias();
             this.objPasoMensajes = new clsPasoMensajes();
+
+            this.estaArrancado = false;
+            this.intCantPIDActivos = 0;
+
+            this.strMensajesLista = new string[1];
+            this.strCalcsLista = new string[1];
             this.intPIDsActivos = new int[1];
+
+
             this.wrkMsgTextBox.WorkerReportsProgress = true;
             this.wrkMsgTextBox.WorkerSupportsCancellation = true;
+
             ArrancarBGW("arranque");
         }
 
@@ -39,33 +54,59 @@ namespace frmGUI
 
         #region [Métodos Privados]
 
-        private void NuevaInstancia()
-        {
-            objKernel.LanzaForm("mod-aplicaciones");
-        }
+        #region Métodos Listos
 
-        private bool CerradoForm()
-        {
-            if (objCerrarInstancia.ConfirmaCerrado("gui"))
+        private void NuevaInstancia()
             {
-                return true;
+                objKernel.LanzaForm("mod-aplicaciones");
             }
-            else return false;
-        }
 
         private void ArrancarBGW(String tipo)
-        {
-            switch (tipo)
             {
-                case "arranque":
-                    wrkMsgTextBox.RunWorkerAsync();
-                    wrkMsgPID.RunWorkerAsync();
-                    wrkArranque.RunWorkerAsync();
-                    break;
-                case "default":
-                    if (!wrkMsgTextBox.IsBusy)
-                    {
+                switch (tipo)
+                {
+                    case "arranque":
                         wrkMsgTextBox.RunWorkerAsync();
+                        wrkMsgPID.RunWorkerAsync();
+                        wrkArranque.RunWorkerAsync();
+                        break;
+                    case "default":
+                        if (!wrkMsgTextBox.IsBusy)
+                        {
+                            wrkMsgTextBox.RunWorkerAsync();
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+        private void ActuEstado(String estado)
+        {
+            switch (estado)
+            {
+                case "arrancado":
+                    if (estaArrancado)
+                    {
+                        this.txtMensajes.Text += "La Actualización de Mensajes ya está Activada";
+                        this.txtMensajes.Text += Environment.NewLine;
+                    }
+                    else
+                    {
+                        this.txtMensajes.Text += "Actualización de Mensajes Activada";
+                        this.txtMensajes.Text += Environment.NewLine;
+                    }
+                    break;
+                case "detenido":
+                    if (estaArrancado)
+                    {
+                        this.txtMensajes.Text += "Actiualización de Mensajes Desactivada, esperando último mensaje en camino (si existe)...";
+                        this.txtMensajes.Text += Environment.NewLine;
+                    }
+                    else
+                    {
+                        this.txtMensajes.Text += "La Actiualización de Mensajes ya está Desactivada";
+                        this.txtMensajes.Text += Environment.NewLine;
                     }
                     break;
                 default:
@@ -73,59 +114,72 @@ namespace frmGUI
             }
         }
 
-        private bool EnviarMensaje(String tipoMsg)
-        {
-            try
+        private void DetenerBGW()
             {
-                switch (tipoMsg.ToLower())
+                if (wrkMsgTextBox.WorkerSupportsCancellation)
                 {
-                    case "listo":
-                        objPasoMensajes.TipoMensaje = "started";
-                        objPasoMensajes.Origen = this.Text;
-                        break;
-                    default:
-                        break;
+                    wrkMsgTextBox.CancelAsync();
                 }
+            }
 
-                if (!objPasoMensajes.EnviarMsg())
+        private bool EnviarMensaje(String tipoMsg)
+            {
+                try
                 {
-                    MessageBox.Show(objPasoMensajes.Error, "Módulo Principal", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    switch (tipoMsg.ToLower())
+                    {
+                        case "listo":
+                            objPasoMensajes.TipoMensaje = "started";
+                            objPasoMensajes.Origen = this.Text;
+                            break;
+                        default:
+                            break;
+                    }
+                    if (!objPasoMensajes.EnviarMsg())
+                    {
+                        MessageBox.Show(objPasoMensajes.Error, "Módulo Principal", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return false;
+                    }
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Módulo Principal", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
-
-                return true;
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Módulo Principal", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-        }
 
         private bool EstaListo()
+            {
+                CheckForIllegalCrossThreadCalls = false;
+                this.txtMensajes.Text = "Cargando Formulario...";
+                this.Enabled = false;
+                Random espera = new Random();
+                Thread.Sleep(espera.Next(1000, 3000));
+                this.txtMensajes.Text = "";
+                this.Enabled = true;
+                wrkArranque.CancelAsync();
+                return true;
+            }
+
+        #endregion
+
+        private void MostrarMensaje(String tipo)
         {
-            CheckForIllegalCrossThreadCalls = false;
-            this.txtMensajes.Text = "Cargando Formulario...";
-            this.Enabled = false;
-            Random espera = new Random();
-            Thread.Sleep(espera.Next(1000, 3000));
-            this.txtMensajes.Text = "";
-            this.Enabled = true;
-            wrkArranque.CancelAsync();
-            return true;
+            estaArrancado = true;
+            if (!objRecibeMsg.RecibirMsg(tipo))
+            {
+                MessageBox.Show(objRecibeMsg.Error, "Final Sistemas Operativos", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            this.txtMensajes.Text += objRecibeMsg.Mensaje;
+            this.txtMensajes.Text += Environment.NewLine;
+            this.txtMensajes.SelectionStart = txtMensajes.Text.Length;
+            this.txtMensajes.ScrollToCaret();
         }
 
-        private void DetenerBGW()
-        {
-            if (wrkMsgTextBox.WorkerSupportsCancellation)
-            {
-                wrkMsgTextBox.CancelAsync();
-            }
-        }
-        
         private void RecuperarMensajes(object sender, DoWorkEventArgs e, String tipo)
         {
-            clsRecibeMensajes objRecibeMsg;
             wrkMsgTextBox = sender as BackgroundWorker;
             CheckForIllegalCrossThreadCalls = false;
 
@@ -140,17 +194,8 @@ namespace frmGUI
                         estaArrancado = false;
                     }
                     else
-                    {                      
-                        estaArrancado = true;
-                        if (!objRecibeMsg.RecibirMsg(tipo))
-                        {
-                            MessageBox.Show(objRecibeMsg.Error, "Final Sistemas Operativos", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            return;
-                        }
-                        this.txtMensajes.Text += objRecibeMsg.Mensaje;
-                        this.txtMensajes.Text += Environment.NewLine;
-                        this.txtMensajes.SelectionStart = txtMensajes.Text.Length;
-                        this.txtMensajes.ScrollToCaret();
+                    {
+                        MostrarMensaje(tipo);
                     }
                 }
                 catch (Exception ex)
@@ -166,10 +211,8 @@ namespace frmGUI
 
         private void RecuperarPID(object sender, DoWorkEventArgs e, string tipo)
         {
-            clsRecibeMensajes objRecibeMsg;
             BackgroundWorker wrkMsgPID = sender as BackgroundWorker;
             CheckForIllegalCrossThreadCalls = false;
-            String[] strMensajesLista = new string[1], strCalcsLista = new string[1];
             int[] intInstanciasCalc = new int[1];
             int contador = 0, contadorCalcs = 0;
 
@@ -217,6 +260,8 @@ namespace frmGUI
                                 this.lstHistorialPIDs.SelectedIndex = lstHistorialPIDs.Items.Count - 1;
                                 strMensajesLista[contador] = objRecibeMsg.Mensaje;
                                 contador++;
+
+
 
                                 Array.Resize<String>(ref strMensajesLista, strMensajesLista.Length+1);
                                 switch (objRecibeMsg.MensajeRetorno.strOrigen.ToLower())
@@ -271,50 +316,30 @@ namespace frmGUI
             }
         }
 
-        private void ActuEstado(String estado)
-        {
-            switch (estado)
-            {
-                case "arrancado":
-                    if (estaArrancado)
-                    {
-                        this.txtMensajes.Text += "La Actualización de Mensajes ya está Activada";
-                        this.txtMensajes.Text += Environment.NewLine;
-                    }
-                    else
-                    {
-                        this.txtMensajes.Text += "Actualización de Mensajes Activada";
-                        this.txtMensajes.Text += Environment.NewLine;
-                    }
-                    break;
-                case "detenido":
-                    if (estaArrancado)
-                    {
-                        this.txtMensajes.Text += "Actiualización de Mensajes Desactivada, esperando último mensaje en camino (si existe)...";
-                        this.txtMensajes.Text += Environment.NewLine;
-                    }
-                    else
-                    {
-                        this.txtMensajes.Text += "La Actiualización de Mensajes ya está Desactivada";
-                        this.txtMensajes.Text += Environment.NewLine;
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
 
-        private void FinalizarPrograma()
+
+        private void FinalizarPrograma(String tipo)
         {
             objKernel.RecuperaPID("maestro");
             this.intPIDsActivos = this.intPIDsActivos.Where(val => val != objKernel.IdProceso).ToArray();
             objCerrarInstancia.PIDS = this.intPIDsActivos;
-            objCerrarInstancia.Cerrar("all");
+            objCerrarInstancia.Cerrar(tipo);
+        }
+
+        private bool CerradoForm()
+        {
+            if (objCerrarInstancia.ConfirmaCerrado("gui"))
+            {
+                return true;
+            }
+            else return false;
         }
 
         #endregion
 
         #region [Eventos]
+
+        #region Eventos Listos
 
         private void tsmiNuevaInstancia_Click(object sender, EventArgs e)
         {
@@ -324,6 +349,19 @@ namespace frmGUI
         private void bgwRecibeMensajes_DoWork(object sender, DoWorkEventArgs e)
         {
             RecuperarMensajes(sender, e, "textbox");
+        }
+
+        private void wrkMsgPID_DoWork(object sender, DoWorkEventArgs e)
+        {
+            RecuperarPID(sender, e, "listbox");
+        }
+
+        private void wrkArranque_DoWork(object sender, DoWorkEventArgs e)
+        {
+            if (EstaListo())
+            {
+                EnviarMensaje("listo");
+            }
         }
 
         private void btnActuMsgs_Click(object sender, EventArgs e)
@@ -338,6 +376,8 @@ namespace frmGUI
             DetenerBGW();
         }
 
+        #endregion
+
         private void frmGUI_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (!CerradoForm())
@@ -346,21 +386,24 @@ namespace frmGUI
             }
             else
             {
-                FinalizarPrograma();
+                FinalizarPrograma("stop-all-calc");
             }
         }
 
-        private void wrkMsgPID_DoWork(object sender, DoWorkEventArgs e)
+        private void tsmiCerrarCalcs_Click(object sender, EventArgs e)
         {
-            RecuperarPID(sender, e, "listbox");
-        }
-
-        private void wrkArranque_DoWork(object sender, DoWorkEventArgs e)
-        {
-            if (EstaListo())
+            if (!CerradoForm())
             {
-                EnviarMensaje("listo");
             }
+            else
+            {
+                FinalizarPrograma("calc");
+            }
+        }
+
+        private void tsmiCerrarModApps_Click(object sender, EventArgs e)
+        {
+
         }
 
         #endregion
