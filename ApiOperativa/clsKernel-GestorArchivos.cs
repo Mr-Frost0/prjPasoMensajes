@@ -81,6 +81,8 @@ namespace KernelSistema
             }
         }
 
+        /*
+
         private void regDoc()
         {
             try
@@ -120,6 +122,8 @@ namespace KernelSistema
             }
             return true;
         }
+
+        */
 
         #endregion
     }
