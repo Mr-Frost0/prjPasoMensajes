@@ -1,18 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 
 namespace KernelSistema
 {
     class clsKernel_GestorArchivos
     {
-        #region [Atributos]
+       /*#region [Atributos]
 
         private string strMensaje;
         private string strError;
+        private int i;
 
         #endregion
 
@@ -29,6 +26,7 @@ namespace KernelSistema
         public clsKernel_GestorArchivos()
         {
             this.strMensaje = VACIO;
+            this.i = 0;
         }
 
         #endregion
@@ -51,6 +49,12 @@ namespace KernelSistema
             return true;
         }
 
+        private string Contador()
+        {
+            i = i++;
+            return Convert.ToString(i);
+        }
+
         private void CrearDirectorios(string Tipo)
         {
             switch (Tipo.ToLower())
@@ -60,15 +64,14 @@ namespace KernelSistema
                     {
                         Directory.CreateDirectory(folderPath);
                     }
-                    break;
-                case "hgeneral":
                     if (!Directory.Exists(ArchTextPath + @"HistorialGeneral.txt"))
                     {
                         Directory.CreateDirectory(ArchTextPath + @"HistorialGeneral.txt");
                     }
                     break;
                 case "registros":
-
+                    Directory.CreateDirectory(ArchTextPath + @"Historial"+ Contador() +".txt");
+                    //Crear método para añadir texto al archivo
                     break;
                 case "exit":
                     if (Directory.Exists(folderPath))
@@ -80,8 +83,6 @@ namespace KernelSistema
                     break;
             }
         }
-
-        /*
 
         private void regDoc()
         {
@@ -123,8 +124,6 @@ namespace KernelSistema
             return true;
         }
 
-        */
-
-        #endregion
+        #endregion*/
     }
 }
