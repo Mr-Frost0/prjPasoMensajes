@@ -13,7 +13,7 @@ namespace frmCalculadora
 
         private clsHacerOperaciones objHacerOpe;
         private clsPasoMensajes objPasoMensajes;
-        private clsCerrarPorPID objCerrarForm;
+        private clsCerradoInstancias objCerrarForm;
         private String strTipoOpe;
         private String strReplace;
         private Double valor1, valor2;
@@ -36,7 +36,7 @@ namespace frmCalculadora
             this.strTipoOpe = args[UNO];
             this.objHacerOpe = new clsHacerOperaciones();
             this.objPasoMensajes = new clsPasoMensajes();
-            this.objCerrarForm = new clsCerrarPorPID();
+            this.objCerrarForm = new clsCerradoInstancias();
             wrkArranque.RunWorkerAsync();
             this.ControlBox = false;
         }

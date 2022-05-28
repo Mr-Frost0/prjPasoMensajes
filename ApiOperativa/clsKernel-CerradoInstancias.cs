@@ -77,6 +77,7 @@ namespace KernelSistema
             {
                 case "all":
                 case "stop-all-calc":
+                case "modapps-calcs":
                     foreach (int pid in intPIDS)
                     {
                         if (pid != 0)

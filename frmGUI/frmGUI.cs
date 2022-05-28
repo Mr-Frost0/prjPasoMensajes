@@ -12,17 +12,23 @@ namespace frmGUI
 
         #region [Atributos]
 
+        private Thread recibeMensajes;
+        private Thread cargaForm;
+        private Thread verProcesosVivos;
+        private object bloqueoHilo;
+
         private clsKernel objKernel;
         private clsCerradoInstancias objCerrarInstancia;
         private clsPasoMensajes objPasoMensajes;
-        private clsRecibeMensajes objRecibeMsg;
 
         private bool estaArrancado;
-        private int intCantPIDActivos;
+        private bool hiloMensajesVivo;
+        private int contadorCalcs;
 
-        private String[] strMensajesLista;
+        private String[] strLstProcesosVivos;
         private String[] strCalcsLista;
         private int[] intPIDsActivos;
+        private int[] intInstanciasCalc;
 
         #endregion
 
@@ -32,54 +38,70 @@ namespace frmGUI
         {
             InitializeComponent();
 
+            this.cargaForm = new Thread(ThCargaForm);
+            this.verProcesosVivos = new Thread(ThVerProcesosActivos);
+
+            this.bloqueoHilo = recibeMensajes;
+
             this.objKernel = new clsKernel();
             this.objCerrarInstancia = new clsCerradoInstancias();
             this.objPasoMensajes = new clsPasoMensajes();
 
+            this.hiloMensajesVivo = true;
             this.estaArrancado = false;
-            this.intCantPIDActivos = 0;
+            this.contadorCalcs = 0;
 
-            this.strMensajesLista = new string[1];
+            this.strLstProcesosVivos = new string[1];
             this.strCalcsLista = new string[1];
             this.intPIDsActivos = new int[1];
+            this.intInstanciasCalc = new int[1];
 
-
-            this.wrkMsgTextBox.WorkerReportsProgress = true;
-            this.wrkMsgTextBox.WorkerSupportsCancellation = true;
-
-            ArrancarBGW("arranque");
+            ArrancaHilos("arranque");
         }
 
         #endregion
 
         #region [Métodos Privados]
 
-        #region Métodos Listos
+        private void NuevoModuloApps()
+        {
+            objKernel.LanzaForm("mod-aplicaciones");
+        }
 
-        private void NuevaInstancia()
+        private void ArrancaHilos(String tipo)
+        {
+            switch (tipo)
             {
-                objKernel.LanzaForm("mod-aplicaciones");
+                case "arranque":
+                    this.recibeMensajes = new Thread(ThMuestraMensajes);
+                    recibeMensajes.Start();
+                    cargaForm.Start();
+                    verProcesosVivos.Start();
+                    break;
+                case "default":
+                    if (recibeMensajes == null)
+                    {
+                        this.recibeMensajes = new Thread(ThMuestraMensajes);
+                        this.hiloMensajesVivo = true;
+                        recibeMensajes.Start();
+                    }
+                    break;
+                default:
+                    break;
             }
+        }
 
-        private void ArrancarBGW(String tipo)
+        private void DetenerHiloMensajes()
+        {
+            if (hiloMensajesVivo)
             {
-                switch (tipo)
+                if (recibeMensajes.IsAlive)
                 {
-                    case "arranque":
-                        wrkMsgTextBox.RunWorkerAsync();
-                        wrkMsgPID.RunWorkerAsync();
-                        wrkArranque.RunWorkerAsync();
-                        break;
-                    case "default":
-                        if (!wrkMsgTextBox.IsBusy)
-                        {
-                            wrkMsgTextBox.RunWorkerAsync();
-                        }
-                        break;
-                    default:
-                        break;
+                    estaArrancado = false;
+                    this.hiloMensajesVivo = false;
                 }
             }
+        }
 
         private void ActuEstado(String estado)
         {
@@ -114,89 +136,94 @@ namespace frmGUI
             }
         }
 
-        private void DetenerBGW()
-            {
-                if (wrkMsgTextBox.WorkerSupportsCancellation)
-                {
-                    wrkMsgTextBox.CancelAsync();
-                }
-            }
-
         private bool EnviarMensaje(String tipoMsg)
+        {
+            try
             {
-                try
+                switch (tipoMsg.ToLower())
                 {
-                    switch (tipoMsg.ToLower())
-                    {
-                        case "listo":
-                            objPasoMensajes.TipoMensaje = "started";
-                            objPasoMensajes.Origen = this.Text;
-                            break;
-                        default:
-                            break;
-                    }
-                    if (!objPasoMensajes.EnviarMsg())
-                    {
-                        MessageBox.Show(objPasoMensajes.Error, "Módulo Principal", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return false;
-                    }
-                    return true;
+                    case "listo":
+                        objPasoMensajes.TipoMensaje = "started";
+                        objPasoMensajes.Origen = this.Text;
+                        break;
+                    default:
+                        break;
                 }
-                catch (Exception ex)
+                if (!objPasoMensajes.EnviarMsg())
                 {
-                    MessageBox.Show(ex.Message, "Módulo Principal", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(objPasoMensajes.Error, "Módulo Principal", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
-            }
-
-        private bool EstaListo()
-            {
-                CheckForIllegalCrossThreadCalls = false;
-                this.txtMensajes.Text = "Cargando Formulario...";
-                this.Enabled = false;
-                Random espera = new Random();
-                Thread.Sleep(espera.Next(1000, 3000));
-                this.txtMensajes.Text = "";
-                this.Enabled = true;
-                wrkArranque.CancelAsync();
                 return true;
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Módulo Principal", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+        }
 
-        #endregion
-
-        private void MostrarMensaje(String tipo)
+        private void ThCargaForm()
         {
-            estaArrancado = true;
-            if (!objRecibeMsg.RecibirMsg(tipo))
+            if (ThEstaListo())
+            {
+                EnviarMensaje("listo");
+                cargaForm.Abort();
+            }
+        }
+
+        private bool ThEstaListo()
+        {
+            Thread.Sleep(100);
+            Action a = () => this.txtMensajes.Text = "Cargando Formulario...";
+            Action b = () => this.Enabled = false;
+            Random espera = new Random();
+            Action c = () => this.txtMensajes.Text = "";
+            Action d = () => this.Enabled = true;
+            Invoke(a);
+            Invoke(b);
+            Thread.Sleep(espera.Next(1000, 3000));
+            Invoke(c);
+            Invoke(d);
+            return true;
+        }
+
+        private void ThMuestraMensajes()
+        {
+            while (this.hiloMensajesVivo)
+            {
+                estaArrancado = true;
+                ThRecuperaMensajes();
+            }
+            recibeMensajes = null;
+        }
+
+        private void ThRecuperaMensajes()
+        {
+            clsRecibeMensajes objRecibeMsg = new clsRecibeMensajes();
+
+            if (!objRecibeMsg.RecibirMsg("textbox"))
             {
                 MessageBox.Show(objRecibeMsg.Error, "Final Sistemas Operativos", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
-            this.txtMensajes.Text += objRecibeMsg.Mensaje;
-            this.txtMensajes.Text += Environment.NewLine;
-            this.txtMensajes.SelectionStart = txtMensajes.Text.Length;
-            this.txtMensajes.ScrollToCaret();
+            Action nuevoMsg = () => this.txtMensajes.AppendText(objRecibeMsg.Mensaje + Environment.NewLine);
+
+            Invoke(nuevoMsg);
+            objRecibeMsg = null;
         }
 
-        private void RecuperarMensajes(object sender, DoWorkEventArgs e, String tipo)
+        private void ThVerProcesosActivos()
         {
-            wrkMsgTextBox = sender as BackgroundWorker;
-            CheckForIllegalCrossThreadCalls = false;
-
-            while (wrkMsgTextBox.CancellationPending == false)
+            while (true)
             {
-                objRecibeMsg = new clsRecibeMensajes();
+                clsRecibeMensajes objRecibeMsg = new clsRecibeMensajes();
                 try
                 {
-                    if (wrkMsgTextBox.CancellationPending == true)
-                    {
-                        e.Cancel = true;
-                        estaArrancado = false;
-                    }
-                    else
-                    {
-                        MostrarMensaje(tipo);
-                    }
+                    objRecibeMsg.RecibirMsg("listbox");
+                    String strMensaje = objRecibeMsg.Mensaje;
+                    MsgRecibe mensajeRecibido = objRecibeMsg.MensajeRetorno;
+                    ThRecuperarProcesosActivos(mensajeRecibido, objRecibeMsg.Mensaje, objRecibeMsg.MensajeCerrado, strMensaje);
                 }
                 catch (Exception ex)
                 {
@@ -209,121 +236,129 @@ namespace frmGUI
             }
         }
 
-        private void RecuperarPID(object sender, DoWorkEventArgs e, string tipo)
+        private void ThRecuperarProcesosActivos(MsgRecibe msgRecibe, String Mensaje, String MensajeCerrado, String strMensaje)
         {
-            BackgroundWorker wrkMsgPID = sender as BackgroundWorker;
-            CheckForIllegalCrossThreadCalls = false;
-            int[] intInstanciasCalc = new int[1];
-            int contador = 0, contadorCalcs = 0;
+            int intCalcVivas = 0;
 
-            while (wrkMsgPID.CancellationPending == false)
+            switch (msgRecibe.strComando.ToLower())
             {
-                try
-                {
-                    objRecibeMsg = new clsRecibeMensajes();
-                    if (wrkMsgPID.CancellationPending == true)
+                case "started":
+                    Action guardaPID = () => this.intPIDsActivos[intPIDsActivos.Length-1] = msgRecibe.intPID;
+                    Action agrandaLista = () => Array.Resize<int>(ref intPIDsActivos, intPIDsActivos.Length + 1);
+                    Action muestraPIDActu = () => this.lstPIDActuales.Items.Add(Mensaje);
+                    Action muestraHistoPID = () => this.lstHistorialPIDs.Items.Add(Mensaje);
+                    Invoke(guardaPID); Invoke(agrandaLista); Invoke(muestraPIDActu); Invoke(muestraHistoPID);
+                    Action selecIndActu = () => this.lstPIDActuales.SelectedIndex = lstPIDActuales.Items.Count - 1;
+                    Action selecIndHisto = () => this.lstHistorialPIDs.SelectedIndex = lstHistorialPIDs.Items.Count - 1;
+                    Invoke(selecIndActu); Invoke(selecIndHisto);
+                    Action actuStrVivos = () => this.strLstProcesosVivos[strLstProcesosVivos.Length-1] = Mensaje;
+                    Action agrandaStrVivos = () => Array.Resize<String>(ref strLstProcesosVivos, strLstProcesosVivos.Length + 1);
+                    Invoke(actuStrVivos); Invoke(agrandaStrVivos);
+                    switch (msgRecibe.strOrigen.ToLower())
                     {
-                        e.Cancel = true;
+                        case "calculadora de suma":
+                        case "calculadora de resta":
+                        case "calculadora de multiplicación":
+                        case "calculadora de división":
+                            intCalcVivas = 1;
+                            break;
+                        default:
+                            break;
                     }
-                    else
+                    break;
+                case "stop":
+                    Action elimPID = () => this.intPIDsActivos = this.intPIDsActivos.Where(val => val != msgRecibe.intPID).ToArray();
+                    Action elimPIDActual = () => this.lstPIDActuales.Items.Remove(MensajeCerrado);
+                    Action elimStrPIDLst = () => strLstProcesosVivos = strLstProcesosVivos.Where(val => val != MensajeCerrado).ToArray();
+                    Invoke(elimPID); Invoke(elimPIDActual); Invoke(elimStrPIDLst);
+                    switch (msgRecibe.strOrigen.ToLower())
                     {
-                        if (objRecibeMsg.RecibirMsg(tipo))
-                        {
-                            if (objRecibeMsg.MensajeRetorno.strComando == "stop")
-                            {
-                                this.intPIDsActivos = this.intPIDsActivos.Where(val => val != objRecibeMsg.MensajeRetorno.intPID).ToArray();
-                                this.intCantPIDActivos--;
-                                this.lstPIDActuales.Items.Remove(objRecibeMsg.MensajeCerrado);
-                                strMensajesLista = strMensajesLista.Where(val => val != objRecibeMsg.MensajeCerrado).ToArray();
-                                contador--;
-                                switch (objRecibeMsg.MensajeRetorno.strOrigen.ToLower())
-                                {
-                                    case "calculadora de suma":
-                                    case "calculadora de resta":
-                                    case "calculadora de multiplicación":
-                                    case "calculadora de división":
-                                        intInstanciasCalc = intInstanciasCalc.Where(val => val != objRecibeMsg.MensajeRetorno.intPID).ToArray();
-                                        contadorCalcs--;
-                                        break;
-                                    default:
-                                        break;
-                                }
-                            }
-                            if (objRecibeMsg.MensajeRetorno.strComando == "started")
-                            {
-                                this.intPIDsActivos[intCantPIDActivos] = objRecibeMsg.MensajeRetorno.intPID;
-                                Array.Resize<int>(ref intPIDsActivos, intPIDsActivos.Length + 1);
-                                this.intCantPIDActivos++;
-                                this.lstPIDActuales.Items.Add(objRecibeMsg.Mensaje);
-                                this.lstHistorialPIDs.Items.Add(objRecibeMsg.Mensaje);
-                                this.lstPIDActuales.SelectedIndex = lstPIDActuales.Items.Count - 1;
-                                this.lstHistorialPIDs.SelectedIndex = lstHistorialPIDs.Items.Count - 1;
-                                strMensajesLista[contador] = objRecibeMsg.Mensaje;
-                                contador++;
-
-
-
-                                Array.Resize<String>(ref strMensajesLista, strMensajesLista.Length+1);
-                                switch (objRecibeMsg.MensajeRetorno.strOrigen.ToLower())
-                                {
-                                    case "calculadora de suma":
-                                    case "calculadora de resta":
-                                    case "calculadora de multiplicación":
-                                    case "calculadora de división":
-                                        Array.Resize<int>(ref intInstanciasCalc, intInstanciasCalc.Length+1);
-                                        intInstanciasCalc[contadorCalcs] = objRecibeMsg.MensajeRetorno.intPID;
-                                        Array.Resize<String>(ref strCalcsLista, strCalcsLista.Length + 1);
-                                        strCalcsLista[contadorCalcs] = objRecibeMsg.Mensaje;
-                                        contadorCalcs++;
-                                        break;
-                                    default:
-                                        break;
-                                }
-                            }
-                            if (objRecibeMsg.MensajeRetorno.strComando == "stop-all-calc")
-                            {
-                                objCerrarInstancia.PIDS = intInstanciasCalc;
-
-                                foreach (string calcViva in strCalcsLista)
-                                {
-                                    this.lstPIDActuales.Items.Remove(calcViva);
-                                }
-                                foreach (int pid in intPIDsActivos)
-                                {
-                                    this.intPIDsActivos = this.intPIDsActivos.Where(val => val != pid).ToArray();
-                                    this.intCantPIDActivos--;
-                                }
-                                intInstanciasCalc = null;
-                                intInstanciasCalc = new int[1];
-                                strCalcsLista = null;
-                                strCalcsLista = new string[1];
-                                contadorCalcs = 0;
-                                this.intPIDsActivos = new int[1];
-                                this.intCantPIDActivos = 0;
-                                objCerrarInstancia.Cerrar("stop-all-calc");
-                            }
-                        }
+                        case "calculadora de suma":
+                        case "calculadora de resta":
+                        case "calculadora de multiplicación":
+                        case "calculadora de división":
+                            intCalcVivas = 2;
+                            break;
+                        default:
+                            break;
                     }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error: " + ex.Message, "Final Sistemas Operativos", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-                finally
-                {
-                    objRecibeMsg = null;
-                }
+                    break;
+                case "stop-all-calc":
+                    objCerrarInstancia.PIDS = intInstanciasCalc;
+                    objCerrarInstancia.Cerrar("stop-all-calc");
+                    foreach (String calcViva in strCalcsLista)
+                    {
+                        Action elimLstCalcsVivas = () => this.lstPIDActuales.Items.Remove(calcViva);
+                        Invoke(elimLstCalcsVivas);
+                    }
+                    for (int i = 0; i < intInstanciasCalc.Length - 1; i++)
+                    {
+                        this.intPIDsActivos = this.intPIDsActivos.Where(val => val != intInstanciasCalc[i]).ToArray();
+                    }
+                    intInstanciasCalc = null;
+                    intInstanciasCalc = new int[1];
+                    strCalcsLista = null;
+                    strCalcsLista = new string[1];
+                    contadorCalcs = 0;
+                    break;
+            }
+            switch (intCalcVivas)
+            {
+                case 1:
+                    Action agrandaArrInstVivas = () => Array.Resize<int>(ref intInstanciasCalc, intInstanciasCalc.Length + 1);
+                    Action guardaInstcalcViv = () => intInstanciasCalc[contadorCalcs] = msgRecibe.intPID;
+                    Action agrandaLstCalcs = () => Array.Resize<String>(ref strCalcsLista, strCalcsLista.Length + 1);
+                    Action guardaLstCalcs = () => strCalcsLista[contadorCalcs] = strMensaje;
+                    Action aumeContCalcs = () => contadorCalcs++;
+                    Invoke(agrandaArrInstVivas); Invoke(guardaInstcalcViv); Invoke(agrandaLstCalcs); Invoke(guardaLstCalcs); Invoke(aumeContCalcs);
+                    break;
+                case 2:
+                    intInstanciasCalc = intInstanciasCalc.Where(val => val != msgRecibe.intPID).ToArray();
+                    contadorCalcs--;
+                    break;
             }
         }
-
-
 
         private void FinalizarPrograma(String tipo)
         {
-            objKernel.RecuperaPID("maestro");
-            this.intPIDsActivos = this.intPIDsActivos.Where(val => val != objKernel.IdProceso).ToArray();
-            objCerrarInstancia.PIDS = this.intPIDsActivos;
-            objCerrarInstancia.Cerrar(tipo);
+            switch (tipo.ToLower())
+            {
+                case "stop-all-calc":
+                    objCerrarInstancia.PIDS = intInstanciasCalc;
+                    objCerrarInstancia.Cerrar("stop-all-calc");
+                    for (int i = 0; i < intInstanciasCalc.Length - 1; i++)
+                    {
+                        this.intPIDsActivos = this.intPIDsActivos.Where(val => val != intInstanciasCalc[i]).ToArray();
+                    }
+                    break;
+                case "modapps-calcs":
+                    objKernel.RecuperaPID("maestro");
+                    Action borraPIDMaestro = () => this.intPIDsActivos = this.intPIDsActivos.Where(val => val != objKernel.IdProceso).ToArray();
+                    Invoke(borraPIDMaestro);
+                    Action igualaPIDs = () => objCerrarInstancia.PIDS = this.intPIDsActivos;
+                    Invoke(igualaPIDs);
+                    objCerrarInstancia.Cerrar(tipo);
+                    String pidMaestro = lstHistorialPIDs.Items[0].ToString();
+                    Action renuevLst = () => this.lstPIDActuales.Items.Clear();
+                    Invoke(renuevLst);
+                    Action renuevLst2 = () => this.lstPIDActuales.Items.Add(pidMaestro);
+                    Invoke(renuevLst2);
+                    intPIDsActivos = null;
+                    intPIDsActivos = new int[1];
+                    break;
+                default:
+                    break;
+            }
+            foreach (String calcViva in strCalcsLista)
+            {
+                Action elimLstCalcsVivas = () => this.lstPIDActuales.Items.Remove(calcViva);
+                Invoke(elimLstCalcsVivas);
+            }
+            intInstanciasCalc = null;
+            intInstanciasCalc = new int[1];
+            strCalcsLista = null;
+            strCalcsLista = new string[1];
+            contadorCalcs = 0;
         }
 
         private bool CerradoForm()
@@ -343,42 +378,24 @@ namespace frmGUI
 
         private void tsmiNuevaInstancia_Click(object sender, EventArgs e)
         {
-            NuevaInstancia();
-        }
-
-        private void bgwRecibeMensajes_DoWork(object sender, DoWorkEventArgs e)
-        {
-            RecuperarMensajes(sender, e, "textbox");
-        }
-
-        private void wrkMsgPID_DoWork(object sender, DoWorkEventArgs e)
-        {
-            RecuperarPID(sender, e, "listbox");
-        }
-
-        private void wrkArranque_DoWork(object sender, DoWorkEventArgs e)
-        {
-            if (EstaListo())
-            {
-                EnviarMensaje("listo");
-            }
+            NuevoModuloApps();
         }
 
         private void btnActuMsgs_Click(object sender, EventArgs e)
         {
             ActuEstado("arrancado");
-            ArrancarBGW("default");
+            ArrancaHilos("default");
         }
 
         private void btnDetenerActu_Click(object sender, EventArgs e)
         {
             ActuEstado("detenido");
-            DetenerBGW();
+            DetenerHiloMensajes();
         }
 
         #endregion
 
-        private void frmGUI_FormClosing(object sender, FormClosingEventArgs e)
+        private void frmGUI_FormClosing(object sender, FormClosingEventArgs e)        
         {
             if (!CerradoForm())
             {
@@ -386,24 +403,44 @@ namespace frmGUI
             }
             else
             {
-                FinalizarPrograma("stop-all-calc");
+                recibeMensajes.Abort();
+                verProcesosVivos.Abort();
+                if (this.intPIDsActivos.Length > 2)
+                {
+                    FinalizarPrograma("modapps-calcs");
+                }
+                this.Dispose();
             }
         }
 
         private void tsmiCerrarCalcs_Click(object sender, EventArgs e)
         {
-            if (!CerradoForm())
+            if (CerradoForm())
             {
-            }
-            else
-            {
-                FinalizarPrograma("calc");
+                if (this.intInstanciasCalc.Length > 2)
+                {
+                    FinalizarPrograma("stop-all-calc");
+                }
+                else
+                {
+                    MessageBox.Show("No hay módulos que cerrar", "Final Sistemas Operativos", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                }
             }
         }
 
         private void tsmiCerrarModApps_Click(object sender, EventArgs e)
         {
-
+            if (CerradoForm())
+            {
+                if (this.intPIDsActivos.Length > 2)
+                {
+                    FinalizarPrograma("modapps-calcs");
+                }
+                else
+                {
+                    MessageBox.Show("No hay módulos que cerrar", "Final Sistemas Operativos", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                }
+            }
         }
 
         #endregion
