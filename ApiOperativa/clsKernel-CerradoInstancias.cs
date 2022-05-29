@@ -25,20 +25,13 @@ namespace KernelSistema
             this.enviarTerminacion = new clsPasoMensajes();
             this.strParamCerrado = "";
         }
-        
+
         #endregion
 
         #region [Propiedades]
 
         public int PID { set => intPID = value; }
         public int[] PIDS { set => intPIDS = value; }
-        public String ParamCerrado { get => strParamCerrado; }
-
-        #endregion
-
-        #region [Métodos Privados]
-
-
 
         #endregion
 
@@ -86,6 +79,10 @@ namespace KernelSistema
                             prcAMatar.Kill();
                         }                        
                     }
+                    break;
+                case "maestro":
+                    Process matarMaestro = Process.GetProcessById(intPID);
+                    matarMaestro.Kill();
                     break;
                 default:
                     break;

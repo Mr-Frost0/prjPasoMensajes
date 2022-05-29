@@ -2,8 +2,8 @@
 using System.Windows.Forms;
 using KernelSistema;
 using System.Threading;
-using System.ComponentModel;
 using System.Linq;
+using clsMatarMaestro;
 
 namespace frmGUI
 {
@@ -403,13 +403,12 @@ namespace frmGUI
             }
             else
             {
-                recibeMensajes.Abort();
+                DetenerHiloMensajes();
                 verProcesosVivos.Abort();
                 if (this.intPIDsActivos.Length > 2)
                 {
                     FinalizarPrograma("modapps-calcs");
                 }
-                this.Dispose();
             }
         }
 
@@ -443,8 +442,15 @@ namespace frmGUI
             }
         }
 
-        #endregion
+        private void frmGUI_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            clsMatarPrograma autoSuicidarse = new clsMatarPrograma();
+            objKernel.RecuperaPID("maestro");
+            autoSuicidarse.PIDMaestro = objKernel.IdProceso;
+            autoSuicidarse.MatarMaestro();
+        }
 
+        #endregion
 
     }
 }

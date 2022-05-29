@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libKernelSistema", "ApiOper
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "frmGUI", "frmGUI\frmGUI.csproj", "{24F4358C-C28D-4DFE-81CD-1DABD8B84F68}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "clsMatarMaestro", "clsMatarMaestro\clsMatarMaestro.csproj", "{C4F5374D-F734-49FE-9C14-35408FB41407}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{24F4358C-C28D-4DFE-81CD-1DABD8B84F68}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{24F4358C-C28D-4DFE-81CD-1DABD8B84F68}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{24F4358C-C28D-4DFE-81CD-1DABD8B84F68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4F5374D-F734-49FE-9C14-35408FB41407}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4F5374D-F734-49FE-9C14-35408FB41407}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4F5374D-F734-49FE-9C14-35408FB41407}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4F5374D-F734-49FE-9C14-35408FB41407}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

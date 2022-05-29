@@ -189,6 +189,7 @@
             this.Name = "frmGUI";
             this.Text = "Módulo GUI - Final Sistemas Operativos";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmGUI_FormClosing);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmGUI_FormClosed);
             this.grbMensajes.ResumeLayout(false);
             this.grbMensajes.PerformLayout();
             this.grbPIDs.ResumeLayout(false);
