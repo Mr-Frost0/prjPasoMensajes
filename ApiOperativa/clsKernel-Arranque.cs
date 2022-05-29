@@ -5,36 +5,24 @@ using System.Collections.Generic;
 namespace KernelSistema
 {
 
-    public class clsKernel
+    public class clsKernel_Arranque
     {
-
-        #region [Comentarios]
-
-        //Añadir terminación de todos los procesos en ejecución
-
-        /*
-         * Kernel: Encargado de la inicialización, ejecución y terminación del programa
-         */
-
-        #endregion
 
         #region [Atributos]
 
         private String strError;
         private int intIdProceso;
         Process arrancaForm;
-        clsPasoMensajes enviarPID;
         Process procesoActual;
 
         #endregion
 
         #region [Constructor]
 
-        public clsKernel()
+        public clsKernel_Arranque()
         {
             this.intIdProceso = 0;
-            this.strError = "";
-            this.enviarPID = new clsPasoMensajes();            
+            this.strError = "";       
         }
 
         #endregion

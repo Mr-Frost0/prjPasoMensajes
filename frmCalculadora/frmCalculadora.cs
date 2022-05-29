@@ -17,15 +17,17 @@ namespace frmCalculadora
         private String strTipoOpe;
         private String strReplace;
         private Double valor1, valor2;
-        private String[] args = Environment.GetCommandLineArgs();
+        private String[] args;
         private bool debeReiniciar = false;
         private String strQueCierra;
 
         #endregion
 
         #region [Constantes]
+
         private const int UNO = 1;
         private const string VACIO = "";
+
         #endregion 
 
         #region [Constructor]
@@ -33,6 +35,7 @@ namespace frmCalculadora
         public frmCalculadora()
         {
             InitializeComponent();
+            args = Environment.GetCommandLineArgs();
             this.strTipoOpe = args[UNO];
             this.objHacerOpe = new clsHacerOperaciones();
             this.objPasoMensajes = new clsPasoMensajes();
@@ -44,6 +47,17 @@ namespace frmCalculadora
         #endregion
 
         #region [Métodos Privados]
+
+        private bool HayErrorArranque()
+        {
+
+            if (this.debeReiniciar)
+            {
+                return false;
+            }
+            else
+                return true;
+        }
 
         private bool EstaListo()
         {
@@ -57,18 +71,7 @@ namespace frmCalculadora
             return true;
         }
 
-        private bool HayErrorArranque()
-        {
-
-            if (this.debeReiniciar)
-            {
-                return false;
-            }
-            else
-                return true;
-        }
-
-        private void SetForm()
+        private void InicializadoForm()
         {
             switch (strTipoOpe.ToLower())
             {
@@ -208,7 +211,6 @@ namespace frmCalculadora
                 {
                     case "op-exito":
                         objPasoMensajes.TipoMensaje = "operacion-exito";
-                        objPasoMensajes.TipoCalc = strReplace;
                         objPasoMensajes.CodTerm = 0;
                         objPasoMensajes.Origen = this.Text;
                         break;
@@ -302,7 +304,7 @@ namespace frmCalculadora
 
         private void frmCalculadora_Load(object sender, EventArgs e)
         {
-            SetForm();
+            InicializadoForm();
         }
 
         #endregion

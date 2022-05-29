@@ -11,9 +11,7 @@ namespace KernelSistema
 
         private int intPID;
         private clsPasoMensajes enviarTerminacion;
-        private String strParamCerrado;
-        private int[] intPIDS;
-        
+        private int[] intPIDS;   
         
         #endregion
 
@@ -23,7 +21,6 @@ namespace KernelSistema
         {
             this.intPID = 0;
             this.enviarTerminacion = new clsPasoMensajes();
-            this.strParamCerrado = "";
         }
 
         #endregion

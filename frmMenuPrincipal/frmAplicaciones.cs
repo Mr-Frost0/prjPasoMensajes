@@ -5,28 +5,12 @@ using System.Threading;
 
 namespace frmMenuPrincipal
 {
-
-    /*
-     * Este es el módulo de aplicaciones, por lo cual le aplican las siguientes normas
-      
-     * Si este módulo se cierra, deberá cerrar todos los módulos hijos, pero se debe poder inicializar de nuevo desde el módulo GUI     
-     
-     * Controlará sus instancias a través del paso de mensajes
-     
-     * Se comunicará con la GUI mediante el comando 'info', a la vez que envía el PID de las instancias hijas
-      
-     * Cuando se cierre una instancia o todas mediante el módulo Aplicación, notificará al gestor de archivos y lo registrará en el registro de transacciones
-      
-     * Este módulo puede generar un mensaje 'ocupado' con un tiempo de espera entre 1 y 3 segundos, para luego pasar a estar disponibles y actualizar su estado en tiempo real
-      
-     */
-
     public partial class frmPrincipal : Form
     {
 
         #region [Atributos]
 
-        private clsKernel objKernel;
+        private clsKernel_Arranque objKernel;
         private clsPasoMensajes objPasoMensajes;
         private clsCerradoInstancias objCerrarInstancia;
 
@@ -37,7 +21,7 @@ namespace frmMenuPrincipal
         public frmPrincipal()
         {
             InitializeComponent();
-            objKernel = new clsKernel();
+            objKernel = new clsKernel_Arranque();
             this.objPasoMensajes = new clsPasoMensajes();
             RecuperaIdMaestro();
             objCerrarInstancia = new clsCerradoInstancias();

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Messaging;
-using System.Collections.Generic;
 using System.Text;
 
 namespace KernelSistema
@@ -10,7 +9,6 @@ namespace KernelSistema
     {
 
         #region [Atributos]
-
 
         private MessageQueue msgCola;
         private String strMensaje;
@@ -48,7 +46,6 @@ namespace KernelSistema
         public String Error { get => strError; }
 
         #endregion
-
 
         #region [Métodos Públicos]
 

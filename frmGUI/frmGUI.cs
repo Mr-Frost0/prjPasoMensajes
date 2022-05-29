@@ -15,9 +15,8 @@ namespace frmGUI
         private Thread recibeMensajes;
         private Thread cargaForm;
         private Thread verProcesosVivos;
-        private object bloqueoHilo;
 
-        private clsKernel objKernel;
+        private clsKernel_Arranque objKernelArranque;
         private clsCerradoInstancias objCerrarInstancia;
         private clsPasoMensajes objPasoMensajes;
 
@@ -41,9 +40,7 @@ namespace frmGUI
             this.cargaForm = new Thread(ThCargaForm);
             this.verProcesosVivos = new Thread(ThVerProcesosActivos);
 
-            this.bloqueoHilo = recibeMensajes;
-
-            this.objKernel = new clsKernel();
+            this.objKernelArranque = new clsKernel_Arranque();
             this.objCerrarInstancia = new clsCerradoInstancias();
             this.objPasoMensajes = new clsPasoMensajes();
 
@@ -63,9 +60,49 @@ namespace frmGUI
 
         #region [Métodos Privados]
 
+        #region "Métodos Hilo Arranque"
+
+        private void ThCargaForm()
+        {
+            if (ThEstaListo())
+            {
+                EnviarMensaje("listo");
+                cargaForm.Abort();
+            }
+        }
+
+        private bool ThEstaListo()
+        {
+            Action a = () => this.txtMensajes.Text = "Cargando Formulario...";
+            Action b = () => this.Enabled = false;
+            Random espera = new Random();
+            Action c = () => this.txtMensajes.Text = "";
+            Action d = () => this.Enabled = true;
+            Thread.Sleep(500);
+            Invoke(a);
+            Invoke(b);
+            Thread.Sleep(espera.Next(500, 2500));
+            Invoke(c);
+            Invoke(d);
+            return true;
+        }
+
+        #endregion
+
+        #region "Métodos Hilo Formulario"
+
         private void NuevoModuloApps()
         {
-            objKernel.LanzaForm("mod-aplicaciones");
+            objKernelArranque.LanzaForm("mod-aplicaciones");
+        }
+
+        private bool CerradoForm()
+        {
+            if (objCerrarInstancia.ConfirmaCerrado("gui"))
+            {
+                return true;
+            }
+            else return false;
         }
 
         private void ArrancaHilos(String tipo)
@@ -163,30 +200,51 @@ namespace frmGUI
             }
         }
 
-        private void ThCargaForm()
+        private void FinalizarPrograma(String tipo)
         {
-            if (ThEstaListo())
+            switch (tipo.ToLower())
             {
-                EnviarMensaje("listo");
-                cargaForm.Abort();
+                case "stop-all-calc":
+                    objCerrarInstancia.PIDS = intInstanciasCalc;
+                    objCerrarInstancia.Cerrar("stop-all-calc");
+                    for (int i = 0; i < intInstanciasCalc.Length - 1; i++)
+                    {
+                        this.intPIDsActivos = this.intPIDsActivos.Where(val => val != intInstanciasCalc[i]).ToArray();
+                    }
+                    break;
+                case "modapps-calcs":
+                    objKernelArranque.RecuperaPID("maestro");
+                    Action borraPIDMaestro = () => this.intPIDsActivos = this.intPIDsActivos.Where(val => val != objKernelArranque.IdProceso).ToArray();
+                    Invoke(borraPIDMaestro);
+                    Action igualaPIDs = () => objCerrarInstancia.PIDS = this.intPIDsActivos;
+                    Invoke(igualaPIDs);
+                    objCerrarInstancia.Cerrar(tipo);
+                    String pidMaestro = lstHistorialPIDs.Items[0].ToString();
+                    Action renuevLst = () => this.lstPIDActuales.Items.Clear();
+                    Invoke(renuevLst);
+                    Action renuevLst2 = () => this.lstPIDActuales.Items.Add(pidMaestro);
+                    Invoke(renuevLst2);
+                    intPIDsActivos = null;
+                    intPIDsActivos = new int[1];
+                    break;
+                default:
+                    break;
             }
+            foreach (String calcViva in strCalcsLista)
+            {
+                Action elimLstCalcsVivas = () => this.lstPIDActuales.Items.Remove(calcViva);
+                Invoke(elimLstCalcsVivas);
+            }
+            intInstanciasCalc = null;
+            intInstanciasCalc = new int[1];
+            strCalcsLista = null;
+            strCalcsLista = new string[1];
+            contadorCalcs = 0;
         }
 
-        private bool ThEstaListo()
-        {
-            Thread.Sleep(100);
-            Action a = () => this.txtMensajes.Text = "Cargando Formulario...";
-            Action b = () => this.Enabled = false;
-            Random espera = new Random();
-            Action c = () => this.txtMensajes.Text = "";
-            Action d = () => this.Enabled = true;
-            Invoke(a);
-            Invoke(b);
-            Thread.Sleep(espera.Next(1000, 3000));
-            Invoke(c);
-            Invoke(d);
-            return true;
-        }
+        #endregion
+
+        #region "Métodos Hilo Recuperación Mensajes"
 
         private void ThMuestraMensajes()
         {
@@ -212,6 +270,10 @@ namespace frmGUI
             Invoke(nuevoMsg);
             objRecibeMsg = null;
         }
+
+        #endregion
+
+        #region "Métodos Hilo Recuperación Procesos Vivos"
 
         private void ThVerProcesosActivos()
         {
@@ -243,7 +305,7 @@ namespace frmGUI
             switch (msgRecibe.strComando.ToLower())
             {
                 case "started":
-                    Action guardaPID = () => this.intPIDsActivos[intPIDsActivos.Length-1] = msgRecibe.intPID;
+                    Action guardaPID = () => this.intPIDsActivos[intPIDsActivos.Length - 1] = msgRecibe.intPID;
                     Action agrandaLista = () => Array.Resize<int>(ref intPIDsActivos, intPIDsActivos.Length + 1);
                     Action muestraPIDActu = () => this.lstPIDActuales.Items.Add(Mensaje);
                     Action muestraHistoPID = () => this.lstHistorialPIDs.Items.Add(Mensaje);
@@ -251,7 +313,7 @@ namespace frmGUI
                     Action selecIndActu = () => this.lstPIDActuales.SelectedIndex = lstPIDActuales.Items.Count - 1;
                     Action selecIndHisto = () => this.lstHistorialPIDs.SelectedIndex = lstHistorialPIDs.Items.Count - 1;
                     Invoke(selecIndActu); Invoke(selecIndHisto);
-                    Action actuStrVivos = () => this.strLstProcesosVivos[strLstProcesosVivos.Length-1] = Mensaje;
+                    Action actuStrVivos = () => this.strLstProcesosVivos[strLstProcesosVivos.Length - 1] = Mensaje;
                     Action agrandaStrVivos = () => Array.Resize<String>(ref strLstProcesosVivos, strLstProcesosVivos.Length + 1);
                     Invoke(actuStrVivos); Invoke(agrandaStrVivos);
                     switch (msgRecibe.strOrigen.ToLower())
@@ -319,67 +381,11 @@ namespace frmGUI
             }
         }
 
-        private void FinalizarPrograma(String tipo)
-        {
-            switch (tipo.ToLower())
-            {
-                case "stop-all-calc":
-                    objCerrarInstancia.PIDS = intInstanciasCalc;
-                    objCerrarInstancia.Cerrar("stop-all-calc");
-                    for (int i = 0; i < intInstanciasCalc.Length - 1; i++)
-                    {
-                        this.intPIDsActivos = this.intPIDsActivos.Where(val => val != intInstanciasCalc[i]).ToArray();
-                    }
-                    break;
-                case "modapps-calcs":
-                    objKernel.RecuperaPID("maestro");
-                    Action borraPIDMaestro = () => this.intPIDsActivos = this.intPIDsActivos.Where(val => val != objKernel.IdProceso).ToArray();
-                    Invoke(borraPIDMaestro);
-                    Action igualaPIDs = () => objCerrarInstancia.PIDS = this.intPIDsActivos;
-                    Invoke(igualaPIDs);
-                    objCerrarInstancia.Cerrar(tipo);
-                    String pidMaestro = lstHistorialPIDs.Items[0].ToString();
-                    Action renuevLst = () => this.lstPIDActuales.Items.Clear();
-                    Invoke(renuevLst);
-                    Action renuevLst2 = () => this.lstPIDActuales.Items.Add(pidMaestro);
-                    Invoke(renuevLst2);
-                    intPIDsActivos = null;
-                    intPIDsActivos = new int[1];
-                    break;
-                default:
-                    break;
-            }
-            foreach (String calcViva in strCalcsLista)
-            {
-                Action elimLstCalcsVivas = () => this.lstPIDActuales.Items.Remove(calcViva);
-                Invoke(elimLstCalcsVivas);
-            }
-            intInstanciasCalc = null;
-            intInstanciasCalc = new int[1];
-            strCalcsLista = null;
-            strCalcsLista = new string[1];
-            contadorCalcs = 0;
-        }
-
-        private bool CerradoForm()
-        {
-            if (objCerrarInstancia.ConfirmaCerrado("gui"))
-            {
-                return true;
-            }
-            else return false;
-        }
+        #endregion
 
         #endregion
 
         #region [Eventos]
-
-        #region Eventos Listos
-
-        private void tsmiNuevaInstancia_Click(object sender, EventArgs e)
-        {
-            NuevoModuloApps();
-        }
 
         private void btnActuMsgs_Click(object sender, EventArgs e)
         {
@@ -393,23 +399,9 @@ namespace frmGUI
             DetenerHiloMensajes();
         }
 
-        #endregion
-
-        private void frmGUI_FormClosing(object sender, FormClosingEventArgs e)        
+        private void tsmiNuevaInstancia_Click(object sender, EventArgs e)
         {
-            if (!CerradoForm())
-            {
-                e.Cancel = true;
-            }
-            else
-            {
-                DetenerHiloMensajes();
-                verProcesosVivos.Abort();
-                if (this.intPIDsActivos.Length > 2)
-                {
-                    FinalizarPrograma("modapps-calcs");
-                }
-            }
+            NuevoModuloApps();
         }
 
         private void tsmiCerrarCalcs_Click(object sender, EventArgs e)
@@ -442,11 +434,28 @@ namespace frmGUI
             }
         }
 
+        private void frmGUI_FormClosing(object sender, FormClosingEventArgs e)        
+        {
+            if (!CerradoForm())
+            {
+                e.Cancel = true;
+            }
+            else
+            {
+                DetenerHiloMensajes();
+                verProcesosVivos.Abort();
+                if (this.intPIDsActivos.Length > 2)
+                {
+                    FinalizarPrograma("modapps-calcs");
+                }
+            }
+        }
+
         private void frmGUI_FormClosed(object sender, FormClosedEventArgs e)
         {
             clsMatarPrograma autoSuicidarse = new clsMatarPrograma();
-            objKernel.RecuperaPID("maestro");
-            autoSuicidarse.PIDMaestro = objKernel.IdProceso;
+            objKernelArranque.RecuperaPID("maestro");
+            autoSuicidarse.PIDMaestro = objKernelArranque.IdProceso;
             autoSuicidarse.MatarMaestro();
         }
 

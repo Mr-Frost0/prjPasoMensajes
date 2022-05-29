@@ -9,13 +9,10 @@ namespace KernelSistema
         #region [Atributos]
 
         private String strTipoMensaje;
-        private String strTipoCalc;
         private String strError;
         private String strOrigen;
-        private String strComando;
-        private int intIdProceso;
         private int intCodTerm;
-        clsKernel objKernelArranque;
+        private clsKernel_Arranque objKernelArranque;
         private Message mensaje;
         private MessageQueue objEnviaMensaje;
         private MessageQueue objEnviaMensaje2;
@@ -29,11 +26,8 @@ namespace KernelSistema
         {
             this.strTipoMensaje = "";
             this.strError = "";
-            this.strTipoCalc = "";
             this.strOrigen = "";
-            this.strComando = "";
             this.intCodTerm = 0;
-            this.intIdProceso = 0;
             this.mensaje = new Message();
             this.msgRecibe = new MsgRecibe();
         }
@@ -43,10 +37,7 @@ namespace KernelSistema
         #region [Propiedades]
 
         public String TipoMensaje { set => strTipoMensaje = value; }
-        public String TipoCalc { set => strTipoCalc = value; }
         public String Origen { set => strOrigen = value; }
-        public String Comando { set => strComando = value; }
-        public int IdProceso { set => intIdProceso = value; }
         public int CodTerm { set => intCodTerm = value; }
         public String Error { get => strError; }
 
@@ -58,7 +49,7 @@ namespace KernelSistema
         {
             try
             {
-                this.objKernelArranque = new clsKernel();
+                this.objKernelArranque = new clsKernel_Arranque();
                 this.objKernelArranque.RecuperaPID("pasomensaje");
                 this.msgRecibe.intPID = this.objKernelArranque.IdProceso;
 
