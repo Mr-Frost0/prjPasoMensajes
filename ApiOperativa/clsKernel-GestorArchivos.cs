@@ -5,11 +5,12 @@ namespace KernelSistema
 {
     class clsKernel_GestorArchivos
     {
-       /*#region [Atributos]
+       #region [Atributos]
 
         private string strMensaje;
         private string strError;
         private int i;
+        private string strFecha;
 
         #endregion
 
@@ -27,6 +28,7 @@ namespace KernelSistema
         {
             this.strMensaje = VACIO;
             this.i = 0;
+            this.strFecha = DateTime.Now.ToString(); ;
         }
 
         #endregion
@@ -34,6 +36,7 @@ namespace KernelSistema
         #region [Propiedades]
 
         public string Mensaje { set => strMensaje = value; }
+        public string Error { get => strError; }
 
         #endregion
 
@@ -57,34 +60,42 @@ namespace KernelSistema
 
         private void CrearDirectorios(string Tipo)
         {
-            switch (Tipo.ToLower())
+            try
             {
-                case "inicio":
-                    if (!Directory.Exists(folderPath))
-                    {
-                        Directory.CreateDirectory(folderPath);
-                    }
-                    if (!Directory.Exists(ArchTextPath + @"HistorialGeneral.txt"))
-                    {
-                        Directory.CreateDirectory(ArchTextPath + @"HistorialGeneral.txt");
-                    }
-                    break;
-                case "registros":
-                    Directory.CreateDirectory(ArchTextPath + @"Historial"+ Contador() +".txt");
-                    //Crear método para añadir texto al archivo
-                    break;
-                case "exit":
-                    if (Directory.Exists(folderPath))
-                    {
-                        Directory.Delete(folderPath,true);
-                    }
-                    break;
-                default:
-                    break;
+                switch (Tipo.ToLower())
+                {
+                    case "inicio":
+                        if (!Directory.Exists(folderPath))
+                        {
+                            Directory.CreateDirectory(folderPath);  // Se crea la carpeta que contendra toda la información
+                        }
+                        if (!File.Exists(ArchTextPath + @"HistorialGeneral.txt"))
+                        {
+                            File.Create(ArchTextPath + @"HistorialGeneral.txt");  // Se crea el archivo donde se ingresara el historial de todos los mensajes
+                        }
+                        break;
+                    case "registros":
+                        File.Create(ArchTextPath + @"Historial" + Contador() + ".txt");   // Se crea un archivo para ingresar el ultimo mensaje enviado
+                        regDoc(ArchTextPath + @"HistorialGeneral.txt");     // Se añade cada mensaje en el historial General
+                        regDoc(ArchTextPath + @"Historial" + i + ".txt");   // Se Copia el mensaje actual (el ultimo) en el historial correspondiente
+                        break;
+                    case "exit":
+                        if (Directory.Exists(folderPath))
+                        {
+                            Directory.Delete(folderPath, true);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
 
-        private void regDoc()
+        private void regDoc(string Ruta)
         {
             try
             {
@@ -93,10 +104,10 @@ namespace KernelSistema
                     return;
                 }
 
-                StreamWriter writer = new StreamWriter(RUTA, true);
+                StreamWriter writer = new StreamWriter(Ruta, true);
                 string contenido = null;
 
-                contenido = string.Format("{0},{1},{2},{3},{4},{5},{6}", TipoSoli, Area, IdCliente, Servicio, Fecha, IdFelicitacion, Mensaje);
+                contenido = string.Format("{0},{1}", strMensaje, strFecha);
                 writer.WriteLine(contenido);
 
                 writer.Close();
@@ -111,11 +122,11 @@ namespace KernelSistema
 
         #region [Métodos Públicos]
 
-        public bool registrar()
+        public bool registrar(string tipo)
         {
             try
             {
-                regDoc();
+                CrearDirectorios(tipo);
             }
             catch (Exception ex)
             {
@@ -124,6 +135,8 @@ namespace KernelSistema
             return true;
         }
 
-        #endregion*/
+        #endregion
     }
 }
+/*clsKernel_GestorArchivos GA = new clsKernel_GestorArchivos();
+GA.registrar("inicio");*/
