@@ -16,6 +16,7 @@ namespace frmGUI
         private Thread cargaForm;
         private Thread verProcesosVivos;
 
+        private clsKernel_GestorArchivos GA;
         private clsKernel_Arranque objKernelArranque;
         private clsCerradoInstancias objCerrarInstancia;
         private clsPasoMensajes objPasoMensajes;
@@ -40,6 +41,7 @@ namespace frmGUI
             this.cargaForm = new Thread(ThCargaForm);
             this.verProcesosVivos = new Thread(ThVerProcesosActivos);
 
+            this.GA = new clsKernel_GestorArchivos();
             this.objKernelArranque = new clsKernel_Arranque();
             this.objCerrarInstancia = new clsCerradoInstancias();
             this.objPasoMensajes = new clsPasoMensajes();
@@ -54,6 +56,7 @@ namespace frmGUI
             this.intInstanciasCalc = new int[1];
 
             ArrancaHilos("arranque");
+            GA.registrar("inicio");
         }
 
         #endregion
@@ -265,6 +268,15 @@ namespace frmGUI
                 MessageBox.Show(objRecibeMsg.Error, "Final Sistemas Operativos", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
+
+            GA.Mensaje = objRecibeMsg.Mensaje;
+            GA.PID = objRecibeMsg.MensajeRetorno.intPID;
+            GA.Origen = objRecibeMsg.MensajeRetorno.strOrigen;
+            if (!GA.registrar("registros"))
+            {
+                MessageBox.Show("Error:" + GA.Error, "Gestor Archivos", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            } 
             Action nuevoMsg = () => this.txtMensajes.AppendText(objRecibeMsg.Mensaje + Environment.NewLine);
 
             Invoke(nuevoMsg);
@@ -453,6 +465,7 @@ namespace frmGUI
 
         private void frmGUI_FormClosed(object sender, FormClosedEventArgs e)
         {
+            GA.registrar("finalizar");
             clsMatarPrograma autoSuicidarse = new clsMatarPrograma();
             objKernelArranque.RecuperaPID("maestro");
             autoSuicidarse.PIDMaestro = objKernelArranque.IdProceso;

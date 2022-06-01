@@ -3,21 +3,25 @@ using System.IO;
 
 namespace KernelSistema
 {
-    class clsKernel_GestorArchivos
+    public class clsKernel_GestorArchivos
     {
-       #region [Atributos]
+        #region [Atributos]
 
         private string strMensaje;
         private string strError;
+        private string strOrigen;
         private int i;
+        private int intPID;
         private string strFecha;
 
         #endregion
 
         #region [Constantes]
 
-        private const string folderPath = @"C:\\Users\\Public\\Documents\\HistorialPasoMensajes";
-        private const string ArchTextPath = @"C:\\Users\\Public\\Documents\\HistorialPasoMensajes\\";
+        private const string RutaPrincipal = "C:\\Users\\Public\\Documents\\HistorialPasoMensajes";
+        private const string RutaHstGrl = "C:\\Users\\Public\\Documents\\HistorialPasoMensajes\\General";
+        private const string RutaHstIndv = "C:\\Users\\Public\\Documents\\HistorialPasoMensajes\\Individual";
+        private const string ArchTextPath = "C:\\Users\\Public\\Documents\\HistorialPasoMensajes\\";
         private const string VACIO = "";
 
         #endregion
@@ -28,14 +32,16 @@ namespace KernelSistema
         {
             this.strMensaje = VACIO;
             this.i = 0;
-            this.strFecha = DateTime.Now.ToString(); ;
+            this.intPID = 0;
         }
 
         #endregion
 
         #region [Propiedades]
 
+        public int PID { set => intPID = value; }
         public string Mensaje { set => strMensaje = value; }
+        public string Origen { set => strOrigen = value; }
         public string Error { get => strError; }
 
         #endregion
@@ -54,7 +60,7 @@ namespace KernelSistema
 
         private string Contador()
         {
-            i = i++;
+            i = i+1;
             return Convert.ToString(i);
         }
 
@@ -65,24 +71,28 @@ namespace KernelSistema
                 switch (Tipo.ToLower())
                 {
                     case "inicio":
-                        if (!Directory.Exists(folderPath))
+                        if (!Directory.Exists(RutaPrincipal))
                         {
-                            Directory.CreateDirectory(folderPath);  // Se crea la carpeta que contendra toda la información
-                        }
-                        if (!File.Exists(ArchTextPath + @"HistorialGeneral.txt"))
-                        {
-                            File.Create(ArchTextPath + @"HistorialGeneral.txt");  // Se crea el archivo donde se ingresara el historial de todos los mensajes
+                            Directory.CreateDirectory(RutaPrincipal);  // Se crea la carpeta que contendra toda la información
+
+                            if (!Directory.Exists(RutaHstGrl))
+                            {
+                                Directory.CreateDirectory(RutaHstGrl);
+                            }
+                            if (!Directory.Exists(RutaHstIndv))
+                            {
+                                Directory.CreateDirectory(RutaHstIndv);
+                            }
                         }
                         break;
                     case "registros":
-                        File.Create(ArchTextPath + @"Historial" + Contador() + ".txt");   // Se crea un archivo para ingresar el ultimo mensaje enviado
-                        regDoc(ArchTextPath + @"HistorialGeneral.txt");     // Se añade cada mensaje en el historial General
-                        regDoc(ArchTextPath + @"Historial" + i + ".txt");   // Se Copia el mensaje actual (el ultimo) en el historial correspondiente
+                        regDoc(RutaHstGrl + "\\" + "HistorialGeneral.txt");     // Se añade cada mensaje en el historial General
+                        regDoc(RutaHstIndv + "\\" + "Historial " + Contador() + " - Proceso " + intPID + ".txt");   // Se Copia el mensaje actual (el ultimo) en el historial correspondiente
                         break;
-                    case "exit":
-                        if (Directory.Exists(folderPath))
+                    case "finalizar":
+                        if (Directory.Exists(RutaPrincipal))
                         {
-                            Directory.Delete(folderPath, true);
+                            Directory.Delete(RutaPrincipal, true);
                         }
                         break;
                     default:
@@ -97,6 +107,7 @@ namespace KernelSistema
 
         private void regDoc(string Ruta)
         {
+            StreamWriter writer;
             try
             {
                 if (!validar())
@@ -104,7 +115,7 @@ namespace KernelSistema
                     return;
                 }
 
-                StreamWriter writer = new StreamWriter(Ruta, true);
+                writer = new StreamWriter(Ruta, true);
                 string contenido = null;
 
                 contenido = string.Format("{0},{1}", strMensaje, strFecha);
@@ -116,6 +127,10 @@ namespace KernelSistema
             {
                 throw ex;
             }
+            finally
+            {
+                writer = null;
+            }
         }
 
         #endregion
@@ -126,11 +141,16 @@ namespace KernelSistema
         {
             try
             {
+                this.strFecha = DateTime.Now.ToString();
                 CrearDirectorios(tipo);
             }
             catch (Exception ex)
             {
                 throw ex;
+            }
+            finally
+            {
+                this.strFecha = null;
             }
             return true;
         }
@@ -138,5 +158,3 @@ namespace KernelSistema
         #endregion
     }
 }
-/*clsKernel_GestorArchivos GA = new clsKernel_GestorArchivos();
-GA.registrar("inicio");*/
