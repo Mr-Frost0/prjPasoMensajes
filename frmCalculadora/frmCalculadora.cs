@@ -129,12 +129,24 @@ namespace frmCalculadora
                     return;
                 }
 
-                ImpResult();
-
-                if (!EnviarMensaje("op-exito"))
+                if (ImpResult())
                 {
-                    MessageBox.Show("Ha ocurrido un error enviando el mensaje de confirmación", "Calculadora - " + strReplace, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    if (!EnviarMensaje("op-exito"))
+                    {
+                        MessageBox.Show("Ha ocurrido un error enviando el mensaje de confirmación", "Calculadora - " + strReplace, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                }
+                else
+                {
+                    if (objHacerOpe.CodError == "div-0")
+                    {
+                        if (!EnviarMensaje("div-0"))
+                        {
+                            MessageBox.Show("Ha ocurrido un error enviando el mensaje de confirmación", "Calculadora - " + strReplace, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -193,14 +205,15 @@ namespace frmCalculadora
             }
         }
 
-        private void ImpResult()
+        private bool ImpResult()
         {
             if (!objHacerOpe.MakeOpp())
             {
                 MessageBox.Show(objHacerOpe.Error, "Calculadora - " + strReplace, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                return false;
             }            
             this.lblResultado.Text = Convert.ToString(objHacerOpe.Resultado);
+            return true;
         }
 
         private bool EnviarMensaje(String tipoMsg)
@@ -212,23 +225,24 @@ namespace frmCalculadora
                     case "op-exito":
                         objPasoMensajes.TipoMensaje = "operacion-exito";
                         objPasoMensajes.CodTerm = 0;
-                        objPasoMensajes.Origen = this.Text;
                         break;
                     case "listo":
                         objPasoMensajes.TipoMensaje = "started";
-                        objPasoMensajes.Origen = this.Text;
                         break;
                     case "stop":
                         objPasoMensajes.TipoMensaje = "stop";
-                        objPasoMensajes.Origen = this.Text;
                         break;
                     case "stop-all-calc":
                         objPasoMensajes.TipoMensaje = "stop-all-calc";
-                        objPasoMensajes.Origen = this.Text;
+                        break;
+                    case "div-0":
+                        objPasoMensajes.TipoMensaje = "div-0";
                         break;
                     default:
                         break;
                 }
+
+                objPasoMensajes.Origen = this.Text;
 
                 if (!objPasoMensajes.EnviarMsg())
                 {

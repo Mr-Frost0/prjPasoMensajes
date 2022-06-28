@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="clsKernel-ColasMensajes.cs" />
     <Compile Include="clsKernel-CerradoInstancias.cs" />
     <Compile Include="clsKernel-EnviarMsg.cs" />
     <Compile Include="clsKernel-Arranque.cs" />

@@ -11,6 +11,7 @@ namespace OperacionesMatematicas
         private double dblValorUno, dblValorDos;
         private String strTipoOpe;
         private String strError;
+        private String strCodError;
         private double dblResultado;
 
         #endregion
@@ -30,6 +31,7 @@ namespace OperacionesMatematicas
             this.dblValorDos = CERO;
             this.strTipoOpe = VACIO;
             this.strError = VACIO;
+            this.strCodError = VACIO;
             this.dblResultado = CERO;
         }
 
@@ -40,6 +42,7 @@ namespace OperacionesMatematicas
         public double ValorUno { set => dblValorUno = value; }
         public double ValorDos { set => dblValorDos = value; }
         public String TipoOpe { set => strTipoOpe = value; }
+        public String CodError { get => strCodError; }
         public String Error { get => strError; }
         public double Resultado { get => dblResultado; }
 
@@ -61,6 +64,7 @@ namespace OperacionesMatematicas
                         if (dblValorDos == CERO)
                         {
                             strError = "No se puede realizar una división por cero";
+                            strCodError = "div-0";
                             return false;
                         }
                         break;

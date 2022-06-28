@@ -58,10 +58,18 @@ namespace KernelSistema
                     case "operacion-exito":
                         this.objEnviaMensaje = new MessageQueue(clsConstantes.strRutaCanalMensajes);
                         msgRecibe.intCodTerm = 0;
-                        msgRecibe.intCodTerm = this.intCodTerm;
                         msgRecibe.strComando = strTipoMensaje;
                         msgRecibe.strOrigen = this.strOrigen;
                         msgRecibe.strMensaje = "operación Exitosa";
+                        mensaje.Body = msgRecibe;
+                        objEnviaMensaje.Send(mensaje);
+                        break;
+                    case "div-0":
+                        this.objEnviaMensaje = new MessageQueue(clsConstantes.strRutaCanalMensajes);
+                        msgRecibe.intCodTerm = 5;
+                        msgRecibe.strComando = strTipoMensaje;
+                        msgRecibe.strOrigen = this.strOrigen;
+                        msgRecibe.strMensaje = "división por cero";
                         mensaje.Body = msgRecibe;
                         objEnviaMensaje.Send(mensaje);
                         break;
@@ -69,7 +77,7 @@ namespace KernelSistema
                         this.objEnviaMensaje = new MessageQueue(clsConstantes.strRutaCanalPID);
                         this.objEnviaMensaje2 = new MessageQueue(clsConstantes.strRutaCanalMensajes);
                         msgRecibe.intCodTerm = 0;
-                        msgRecibe.strComando = "started";
+                        msgRecibe.strComando = strTipoMensaje;
                         msgRecibe.strOrigen = this.strOrigen;
                         msgRecibe.strMensaje = "aplicación iniciada - lista";
                         mensaje.Body = msgRecibe;
@@ -80,7 +88,7 @@ namespace KernelSistema
                         this.objEnviaMensaje = new MessageQueue(clsConstantes.strRutaCanalPID);
                         this.objEnviaMensaje2 = new MessageQueue(clsConstantes.strRutaCanalMensajes);
                         this.msgRecibe.intCodTerm = 3;
-                        this.msgRecibe.strComando = "stop";
+                        msgRecibe.strComando = strTipoMensaje;
                         this.msgRecibe.strOrigen = this.strOrigen;
                         this.msgRecibe.strMensaje = "módulo detenido";
                         mensaje.Body = msgRecibe;
@@ -91,7 +99,7 @@ namespace KernelSistema
                         this.objEnviaMensaje = new MessageQueue(clsConstantes.strRutaCanalPID);
                         this.objEnviaMensaje2 = new MessageQueue(clsConstantes.strRutaCanalMensajes);
                         this.msgRecibe.intCodTerm = 4;
-                        this.msgRecibe.strComando = "stop-all-calc";
+                        msgRecibe.strComando = strTipoMensaje;
                         this.msgRecibe.strOrigen = this.strOrigen;                        
                         this.msgRecibe.strMensaje = "todos los módulos de calculadora detenidos";
                         mensaje.Body = msgRecibe;

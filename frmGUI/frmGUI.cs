@@ -20,6 +20,7 @@ namespace frmGUI
         private clsKernel_Arranque objKernelArranque;
         private clsCerradoInstancias objCerrarInstancia;
         private clsPasoMensajes objPasoMensajes;
+        private clsColasMensajes objColasMensajes;
 
         private bool estaArrancado;
         private bool hiloMensajesVivo;
@@ -45,6 +46,7 @@ namespace frmGUI
             this.objKernelArranque = new clsKernel_Arranque();
             this.objCerrarInstancia = new clsCerradoInstancias();
             this.objPasoMensajes = new clsPasoMensajes();
+            this.objColasMensajes = new clsColasMensajes();
 
             this.hiloMensajesVivo = true;
             this.estaArrancado = false;
@@ -55,6 +57,7 @@ namespace frmGUI
             this.intPIDsActivos = new int[1];
             this.intInstanciasCalc = new int[1];
 
+            ColasMensajes("crear");
             ArrancaHilos("arranque");
             GA.registrar("inicio");
         }
@@ -93,6 +96,29 @@ namespace frmGUI
         #endregion
 
         #region "Métodos Hilo Formulario"
+
+        private void ColasMensajes(string s)
+        {
+            try
+            {
+                switch (s.ToLower())
+                {
+                    case "crear":
+                        objColasMensajes.CrearColas();
+                        break;
+                    case "borrar":
+                        objColasMensajes.BorrarColas();
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error:" + ex.Message, "Fallo de creación de colas de mensajes", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
 
         private void NuevoModuloApps()
         {
@@ -466,6 +492,7 @@ namespace frmGUI
         private void frmGUI_FormClosed(object sender, FormClosedEventArgs e)
         {
             GA.registrar("finalizar");
+            ColasMensajes("borrar");
             clsMatarPrograma autoSuicidarse = new clsMatarPrograma();
             objKernelArranque.RecuperaPID("maestro");
             autoSuicidarse.PIDMaestro = objKernelArranque.IdProceso;
